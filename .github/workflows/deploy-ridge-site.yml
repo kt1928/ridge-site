@@ -48,15 +48,45 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
+      - name: Debug before build
+        run: |
+          echo "=== Pre-build Debug ==="
+          echo "Current directory: $(pwd)"
+          echo "Files in current directory:"
+          ls -la
+          echo "Next.js config:"
+          cat next.config.mjs
+          echo "Package.json scripts:"
+          cat package.json | grep -A 10 '"scripts"'
+
       - name: Build static site
-        run: pnpm run build
+        run: |
+          echo "=== Starting Next.js Build ==="
+          pnpm run build
+          echo "=== Build Exit Code: $? ==="
 
       - name: Verify build output
         run: |
-          echo "Build completed. Contents of out directory:"
-          ls -la out/
-          echo "Total size:"
-          du -sh out/
+          echo "=== Post-build Debug ==="
+          echo "Current directory: $(pwd)"
+          echo "All files and directories:"
+          ls -la
+          
+          if [ -d "out" ]; then
+            echo "✅ out/ directory exists!"
+            echo "Contents of out/ directory:"
+            ls -la out/
+            echo "Total size of out/:"
+            du -sh out/
+            echo "Number of files in out/:"
+            find out/ -type f | wc -l
+          else
+            echo "❌ out/ directory does not exist!"
+            echo "Checking for .next directory:"
+            ls -la .next/ || echo ".next directory also missing"
+            echo "Full file listing:"
+            find . -name "*.html" -o -name "out" -o -name ".next" 2>/dev/null
+          fi
 
       - name: Set up Tailscale
         uses: tailscale/github-action@v3
@@ -69,7 +99,15 @@ jobs:
 
       - name: Deploy static files with Rsync over Tailscale
         run: |
+          if [ ! -d "out" ]; then
+            echo "❌ Cannot deploy: out/ directory does not exist!"
+            echo "Build may have failed. Please check the build logs above."
+            exit 1
+          fi
+          
           echo "Starting deployment of static files..."
+          echo "Files to deploy:"
+          find out/ -type f | head -10
           
           # Deploy the built static files from the 'out' directory
           rsync -avz --delete --progress \
@@ -93,3 +131,4 @@ jobs:
           echo "✅ Ridge Site deployed successfully!"
           echo "🌐 Site should be available at your configured nginx URL"
           echo "📁 Files deployed to: /mnt/user/ridge-site/"
+          echo "🎯 The files from ./out/ are now in /mnt/user/ridge-site/ on your Unraid server"
