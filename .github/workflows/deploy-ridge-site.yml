@@ -1,39 +1,43 @@
-name: Deploy Ridge Site to Unraid
+name: Deploy Ridge Site to Unraid via Tailscale
 
 on:
   push:
     branches:
-      - main # Trigger this workflow whenever code is pushed to the 'main' branch
+      - main
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest # GitHub-hosted runner
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4 # Action to clone your repository
+        uses: actions/checkout@v4
 
-      # Ensure the .ssh directory exists and has correct permissions BEFORE ssh-agent tries to use it
-      - name: Create .ssh directory with correct permissions
-        run: |
-          mkdir -p "$HOME/.ssh"
-          chmod 700 "$HOME/.ssh"
-
-      - name: Set up SSH Agent
-        uses: webfactory/ssh-agent@v0.9.0
+      - name: Set up Tailscale
+        uses: tailscale/github-action@v3 # Use the official Tailscale GitHub Action
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }} # Load private key from GitHub secret
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci-runner # Apply a tag to this ephemeral GitHub Actions runner node
+          # version: latest # Optional: specify a Tailscale client version if needed
+          # use-cache: 'true' # Optional: for faster runs
 
-      - name: Add SSH Host to Known Hosts
+      - name: Deploy with Rsync over Tailscale
         run: |
-          # The mkdir -p "$HOME/.ssh" is now handled by the previous step
-          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> "$HOME/.ssh/known_hosts"
-          chmod 600 "$HOME/.ssh/known_hosts"
-        # Using "$HOME" instead of "~" is often more robust in shell scripts
-        # as it explicitly refers to the HOME environment variable.
-
-      - name: Deploy with Rsync
-        run: |
+          # Use rsync over SSH. Tailscale makes the SSH connection work
+          # using your Unraid server's Tailscale IP or hostname.
+          # You may need to replace 'unraid-tower' with your actual Unraid Tailscale hostname
+          # or its Tailscale IP (e.g., 100.x.x.x)
           rsync -avz --delete \
+            -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
             ./ \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/mnt/user/my-static-website/html/
+            github-deploy@unraid-tower:/mnt/user/my-static-website/html/
+        # Explanation of changes:
+        # -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null":
+        #   This tells rsync to use SSH and disables strict host key checking.
+        #   Since the Tailscale node is ephemeral, its host key isn't consistently in known_hosts.
+        #   Tailscale's secure authentication makes this generally safe within the tailnet.
+        # github-deploy@unraid-tower:
+        #   The user on your Unraid server (github-deploy) and its Tailscale hostname.
+        #   Make sure 'unraid-tower' is resolvable by Tailscale's MagicDNS in your tailnet,
+        #   or use its Tailscale IP address (e.g., 100.x.x.x).
