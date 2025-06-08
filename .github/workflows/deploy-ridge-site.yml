@@ -13,6 +13,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4 # Action to clone your repository
 
+      # Ensure the .ssh directory exists and has correct permissions BEFORE ssh-agent tries to use it
+      - name: Create .ssh directory with correct permissions
+        run: |
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+
       - name: Set up SSH Agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
@@ -20,23 +26,14 @@ jobs:
 
       - name: Add SSH Host to Known Hosts
         run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/known_hosts
-        # This step adds your Unraid server's fingerprint to the known_hosts file,
-        # preventing SSH from prompting for confirmation during the rsync step.
+          # The mkdir -p "$HOME/.ssh" is now handled by the previous step
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/known_hosts"
+        # Using "$HOME" instead of "~" is often more robust in shell scripts
+        # as it explicitly refers to the HOME environment variable.
 
       - name: Deploy with Rsync
         run: |
           rsync -avz --delete \
             ./ \
             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/mnt/user/my-static-website/html/
-        # Explanation of rsync command:
-        # -avz: archive mode (preserves permissions, timestamps), verbose output, compress data during transfer
-        # --delete: deletes extraneous files from the destination (Unraid) that are not in the source (GitHub repo).
-        #           This keeps your Unraid site clean and in sync with your repo.
-        # ./ : The source directory - means the current directory (your repo's root on the GitHub runner)
-        # ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/mnt/user/my-static-website/html/:
-        #   The destination on your Unraid server.
-        #   IMPORTANT: Make sure '/mnt/user/my-static-website/html/' is the EXACT path
-        #              that your Nginx Docker container's '/var/www/html' volume is mapped to.
