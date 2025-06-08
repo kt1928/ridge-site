@@ -13,25 +13,55 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.[jt]s', '**/*.[jt]sx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Build static site
+        run: npm run build
+
+      - name: Verify build output
+        run: |
+          echo "Build completed. Contents of out directory:"
+          ls -la out/
+          echo "Total size:"
+          du -sh out/
+
       - name: Set up Tailscale
-        uses: tailscale/github-action@v3 # Use the official Tailscale GitHub Action
+        uses: tailscale/github-action@v3
         with:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
-          tags: tag:ci-oauth # Apply a tag to this ephemeral GitHub Actions runner node
+          tags: tag:ci-oauth
           # version: latest # Optional: specify a Tailscale client version if needed
           # use-cache: 'true' # Optional: for faster runs
 
-      - name: Deploy with Rsync over Tailscale
+      - name: Deploy static files with Rsync over Tailscale
         run: |
-          # Use rsync over SSH. Tailscale makes the SSH connection work
-          # using your Unraid server's Tailscale IP or hostname.
-          # You may need to replace 'unraid-tower' with your actual Unraid Tailscale hostname
-          # or its Tailscale IP (e.g., 100.x.x.x)
-          rsync -avz --delete \
+          echo "Starting deployment of static files..."
+          
+          # Deploy the built static files from the 'out' directory
+          rsync -avz --delete --progress \
             -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
-            ./ \
-            github-deploy@100.78.240.7:/mnt/user/ridge-site/html/
+            ./out/ \
+            github-deploy@100.78.240.7:/mnt/user/ridge-site/
+          
+          echo "Deployment completed successfully!"
         # Explanation of changes:
         # -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null":
         #   This tells rsync to use SSH and disables strict host key checking.
@@ -41,3 +71,9 @@ jobs:
         #   The user on your Unraid server (github-deploy) and its Tailscale hostname.
         #   Make sure 'unraid-tower' is resolvable by Tailscale's MagicDNS in your tailnet,
         #   or use its Tailscale IP address (e.g., 100.x.x.x).
+
+      - name: Deployment notification
+        run: |
+          echo "✅ Ridge Site deployed successfully!"
+          echo "🌐 Site should be available at your configured nginx URL"
+          echo "📁 Files deployed to: /mnt/user/ridge-site/"
