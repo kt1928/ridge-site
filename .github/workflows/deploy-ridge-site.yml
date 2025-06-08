@@ -31,7 +31,7 @@ jobs:
           rsync -avz --delete \
             -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
             ./ \
-            github-deploy@unraid-tower:/mnt/user/my-static-website/html/
+            github-deploy@100.78.240.7:/mnt/user/ridge-site/html/
         # Explanation of changes:
         # -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null":
         #   This tells rsync to use SSH and disables strict host key checking.
