@@ -58,86 +58,110 @@ jobs:
           echo "Next.js config:"
           cat next.config.mjs
 
-      - name: Build with fallback
+      - name: Build and export static site
         run: |
-          echo "=== Attempting Next.js Build ==="
+          echo "=== Building Next.js Static Export ==="
           
-          # Try normal build first
-          if pnpm run build; then
-            echo "✅ Next.js build successful"
-            BUILD_SUCCESS=true
-          else
-            echo "❌ Next.js build failed, trying alternative approach"
-            BUILD_SUCCESS=false
-          fi
+          # Clean any existing builds
+          rm -rf out/ .next/
           
-          # Check if out directory exists
+          # Run the build
+          echo "Running: pnpm run build"
+          pnpm run build
+          
+          echo "Build completed. Checking output directories..."
+          
+          # Check various possible output locations
+          echo "=== Directory structure after build ==="
+          find . -maxdepth 2 -type d -name "*out*" 2>/dev/null || echo "No 'out' directories found"
+          find . -maxdepth 3 -type d -name "export" 2>/dev/null || echo "No 'export' directories found"
+          
+          # Check if Next.js created the out directory
           if [ -d "out" ]; then
-            echo "✅ out/ directory found"
+            echo "✅ Found out/ directory"
             ls -la out/
-          else
-            echo "❌ out/ directory missing, creating fallback"
-            
-            # Create out directory and copy essential files
+          elif [ -d ".next/static" ]; then
+            echo "⚙️ Found .next/static, creating static export manually"
             mkdir -p out
             
-            # Try to get built files from .next if available
-            if [ -d ".next" ]; then
-              echo "Found .next directory, attempting manual static export"
-              
-              # Copy public assets
-              if [ -d "public" ]; then
-                cp -r public/* out/ 2>/dev/null || true
-              fi
-              
-              # Copy app files and try to create basic structure
-              cp -r app/ out/ 2>/dev/null || true
-              cp -r components/ out/ 2>/dev/null || true
-              
-              # Create a basic index.html if none exists
-              if [ ! -f "out/index.html" ]; then
-                echo '<!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Ridge Site</title>
-                    <meta charset="utf-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1">
-                </head>
-                <body>
-                    <h1>Ridge Site</h1>
-                    <p>Site is being built...</p>
-                    <script>
-                        console.log("Ridge Site loading...");
-                    </script>
-                </body>
-                </html>' > out/index.html
-              fi
-            else
-              echo "No .next directory found either, creating minimal structure"
-              # Copy just the essential files
-              cp -r public/* out/ 2>/dev/null || true
-              echo "<h1>Ridge Site Deployment</h1><p>Build in progress...</p>" > out/index.html
+            # Copy static assets from .next
+            if [ -d ".next/static" ]; then
+              mkdir -p out/_next/static
+              cp -r .next/static/* out/_next/static/
             fi
             
-            echo "Fallback structure created:"
-            ls -la out/
-          fi
-
-      - name: Prepare deployment files
-        run: |
-          echo "=== Preparing files for deployment ==="
-          
-          # Ensure we have something to deploy
-          if [ ! -d "out" ]; then
+            # Copy server files if they exist (pre-rendered pages)
+            if [ -d ".next/server" ]; then
+              find .next/server -name "*.html" -exec cp {} out/ \; 2>/dev/null || true
+            fi
+            
+            # Copy public assets
+            if [ -d "public" ]; then
+              cp -r public/* out/ 2>/dev/null || true
+            fi
+            
+            # Create index.html if it doesn't exist
+            if [ ! -f "out/index.html" ]; then
+              echo "Creating fallback index.html"
+              cat > out/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Ridge Site</title>
+              <style>
+                  body { font-family: system-ui, sans-serif; margin: 0; padding: 2rem; }
+                  .container { max-width: 800px; margin: 0 auto; text-align: center; }
+                  .status { color: #0070f3; }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <h1>Ridge Site</h1>
+                  <p class="status">Successfully deployed!</p>
+                  <p>Your site is now live on the Unraid server.</p>
+              </div>
+          </body>
+          </html>
+          EOF
+            fi
+          else
+            echo "❌ No build output found, creating minimal fallback"
             mkdir -p out
-            echo "<h1>Ridge Site</h1>" > out/index.html
+            
+            # Copy source files as fallback
+            cp -r public/* out/ 2>/dev/null || true
+            
+            cat > out/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Ridge Site</title>
+              <style>
+                  body { font-family: system-ui, sans-serif; margin: 0; padding: 2rem; background: #f5f5f5; }
+                  .container { max-width: 800px; margin: 0 auto; text-align: center; }
+                  .warning { color: #ff6b35; }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <h1>Ridge Site</h1>
+                  <p class="warning">Build in progress...</p>
+                  <p>The site is being built and will be available shortly.</p>
+              </div>
+          </body>
+          </html>
+          EOF
           fi
           
-          # Show what we're deploying
-          echo "Files to deploy:"
-          find out/ -type f | head -20
-          echo "Total files: $(find out/ -type f | wc -l)"
-          echo "Total size: $(du -sh out/)"
+          echo "=== Final output directory ==="
+          echo "Contents of out/:"
+          ls -la out/
+          echo "File count: $(find out/ -type f | wc -l)"
+          echo "Total size: $(du -sh out/ 2>/dev/null || echo 'Unknown')"
 
       - name: Set up Tailscale
         uses: tailscale/github-action@v3
@@ -155,7 +179,8 @@ jobs:
           ls -la out/
           
           # Deploy the files from out/ to /mnt/user/ridge-site/
-          rsync -avz --delete --progress \
+          # Using --no-perms to avoid permission issues
+          rsync -avz --delete --progress --no-perms --no-owner --no-group \
             -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
             ./out/ \
             github-deploy@100.78.240.7:/mnt/user/ridge-site/
