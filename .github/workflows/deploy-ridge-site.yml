@@ -18,7 +18,7 @@ jobs:
         with:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
-          tags: tag:ci-runner # Apply a tag to this ephemeral GitHub Actions runner node
+          tags: tag:ci-oauth # Apply a tag to this ephemeral GitHub Actions runner node
           # version: latest # Optional: specify a Tailscale client version if needed
           # use-cache: 'true' # Optional: for faster runs
 
