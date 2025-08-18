@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "unraid-mcp": {
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/client-http",
+        "https://mcp.ridgeserver.com"
+      ],
+      "env": {
+        "MCP_API_KEY": "a32230c624c883f5b9eca6ca7cb85bc49f83f07682cfa4fe1924a3e2151340e2"
+      }
+    }
+  }
+} 
