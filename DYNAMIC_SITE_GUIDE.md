@@ -1,251 +1,197 @@
-# Dynamic Website Setup Guide for Unraid
+# Ridge Site Unraid Deployment Guide
 
-## Option 1: Next.js with API Routes (Recommended Start)
+## Overview
 
-### 1. Create New Project
+This guide covers deploying the Ridge Portfolio Site on Unraid using Docker containers with SWAG as a reverse proxy.
+
+## Prerequisites
+
+- Unraid server with Docker support
+- SWAG container already configured
+- Domain name pointing to your server
+- Docker Hub account (for automated deployments)
+
+## Deployment Steps
+
+### 1. Install Ridge Site Container
+
+**Via Unraid WebUI:**
+1. Go to Docker tab
+2. Click "Add Container"
+3. Fill in the following:
+   - **Name**: `ridge-site`
+   - **Repository**: `[your-dockerhub-username]/ridge-site:latest`
+   - **Network Type**: `bridge`
+   - **Port Mappings**: 
+     - Container Port: `80`
+     - Host Port: `3001` (or your preferred port)
+
+**Via Docker Command:**
 ```bash
-# Create new directory
-mkdir /mnt/user/my-dynamic-site
-cd /mnt/user/my-dynamic-site
-
-# Initialize Next.js project
-npx create-next-app@latest . --typescript --tailwind --app
+docker run -d \
+  --name=ridge-site \
+  --restart=unless-stopped \
+  -p 3001:80 \
+  [your-dockerhub-username]/ridge-site:latest
 ```
 
-### 2. Docker Setup
-```dockerfile
-# Dockerfile
-FROM node:18-alpine AS base
-WORKDIR /app
+### 2. Configure SWAG Reverse Proxy
 
-# Install dependencies
-COPY package*.json ./
-RUN npm ci
+Create the nginx configuration file:
+**File**: `/mnt/user/appdata/swag/nginx/site-confs/ridgeserver.subdomain.conf`
 
-# Copy source code
-COPY . .
-
-# Build the application
-RUN npm run build
-
-# Production stage
-FROM node:18-alpine AS production
-WORKDIR /app
-
-COPY --from=base /app/node_modules ./node_modules
-COPY --from=base /app/.next ./.next
-COPY --from=base /app/package*.json ./
-COPY --from=base /app/public ./public
-
-EXPOSE 3000
-CMD ["npm", "start"]
-```
-
-### 3. Docker Compose
-```yaml
-# docker-compose.yml
-version: '3.8'
-services:
-  my-dynamic-site:
-    build: .
-    container_name: my-dynamic-site
-    ports:
-      - "3001:3000"
-    environment:
-      - NODE_ENV=production
-    volumes:
-      - /mnt/user/appdata/my-dynamic-site/data:/app/data
-    restart: unless-stopped
-```
-
-### 4. SWAG Configuration
 ```nginx
-# /mnt/user/appdata/swag/nginx/site-confs/my-app.subdomain.conf
 server {
     listen 443 ssl;
     listen [::]:443 ssl;
     
-    server_name my-app.ridgeserver.com;
+    server_name ridgeserver.com www.ridgeserver.com;
     
     include /config/nginx/ssl.conf;
     
     # Security headers
     add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-XSS-Protection "1; mode=block" always;
     add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "no-referrer-when-downgrade" always;
     
     location / {
         include /config/nginx/proxy.conf;
         resolver 127.0.0.11 valid=30s;
-        set $upstream_app my-dynamic-site;
-        set $upstream_port 3000;
-        set $upstream_proto http;
-        proxy_pass $upstream_proto://$upstream_app:$upstream_port;
-        
-        # WebSocket support for development
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-    
-    # API routes
-    location /api/ {
-        include /config/nginx/proxy.conf;
-        resolver 127.0.0.11 valid=30s;
-        set $upstream_app my-dynamic-site;
-        set $upstream_port 3000;
-        proxy_pass http://$upstream_app:$upstream_port;
-    }
-}
-```
-
-## Option 2: WordPress (Easiest CMS)
-
-### 1. Unraid Community Apps
-- Search for "WordPress" in Community Apps
-- Install the LinuxServer.io WordPress container
-- Configure domain: `blog.ridgeserver.com`
-
-### 2. SWAG Configuration
-```nginx
-# /mnt/user/appdata/swag/nginx/site-confs/wordpress.subdomain.conf
-server {
-    listen 443 ssl;
-    server_name blog.ridgeserver.com;
-    
-    include /config/nginx/ssl.conf;
-    
-    location / {
-        include /config/nginx/proxy.conf;
-        resolver 127.0.0.11 valid=30s;
-        set $upstream_app wordpress;
+        set $upstream_app ridge-site;
         set $upstream_port 80;
         proxy_pass http://$upstream_app:$upstream_port;
     }
+    
+    # Cache static assets
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js|svg|woff|woff2|ttf|eot)$ {
+        include /config/nginx/proxy.conf;
+        resolver 127.0.0.11 valid=30s;
+        set $upstream_app ridge-site;
+        set $upstream_port 80;
+        proxy_pass http://$upstream_app:$upstream_port;
+        
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+}
+
+# HTTP to HTTPS redirect
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ridgeserver.com www.ridgeserver.com;
+    return 301 https://$server_name$request_uri;
 }
 ```
 
-## Option 3: Full-Stack with Database
+### 3. Restart SWAG
 
-### 1. Complete Stack
-```yaml
-# docker-compose.yml
-version: '3.8'
-services:
-  app:
-    build: .
-    container_name: fullstack-app
-    ports:
-      - "3002:3000"
-    environment:
-      - DATABASE_URL=postgresql://myuser:mypass@db:5432/myapp
-      - JWT_SECRET=your-secret-key
-    depends_on:
-      - db
-    restart: unless-stopped
-    
-  db:
-    image: postgres:15
-    container_name: fullstack-db
-    environment:
-      - POSTGRES_USER=myuser
-      - POSTGRES_PASSWORD=mypass
-      - POSTGRES_DB=myapp
-    volumes:
-      - /mnt/user/appdata/fullstack-app/db:/var/lib/postgresql/data
-    restart: unless-stopped
-    
-  redis:
-    image: redis:7-alpine
-    container_name: fullstack-redis
-    volumes:
-      - /mnt/user/appdata/fullstack-app/redis:/data
-    restart: unless-stopped
-```
-
-## GitHub Actions for Dynamic Sites
-
-### 1. Build and Deploy Workflow
-```yaml
-# .github/workflows/deploy-dynamic.yml
-name: Deploy Dynamic Site
-
-on:
-  push:
-    branches: [main]
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Build Docker image
-        run: |
-          docker build -t my-dynamic-site .
-          
-      - name: Deploy to Unraid
-        run: |
-          # Copy files to Unraid
-          # Restart container
-          # Run database migrations if needed
-```
-
-## Subdomain Strategy
-
-### Organize Multiple Sites
-- **Static**: `ridgeserver.com` (your current site)
-- **Blog**: `blog.ridgeserver.com` (WordPress)
-- **App**: `app.ridgeserver.com` (Dynamic web app)
-- **API**: `api.ridgeserver.com` (Backend services)
-- **Admin**: `admin.ridgeserver.com` (Admin panels)
-
-## Security Considerations
-
-### 1. Environment Variables
+After creating the configuration file:
 ```bash
-# Store secrets in docker-compose
-environment:
-  - DATABASE_PASSWORD_FILE=/run/secrets/db_password
-  - JWT_SECRET_FILE=/run/secrets/jwt_secret
+docker restart swag
 ```
 
-### 2. Network Isolation
-```yaml
-networks:
-  app-network:
-    driver: bridge
-    
-services:
-  app:
-    networks:
-      - app-network
-  db:
-    networks:
-      - app-network
-```
+## Updating the Site
 
-### 3. SWAG Authentication
-```nginx
-# Add to any location block
-include /config/nginx/authelia-location.conf;  # If using Authelia
-# or
-auth_basic "Restricted";
-auth_basic_user_file /config/nginx/.htpasswd;
-```
+### Automatic Updates (Recommended)
 
-## Backup Strategy
+The GitHub Actions workflow automatically builds and pushes new images to Docker Hub when you push to the main branch.
 
-### 1. Database Backups
+To deploy updates:
+1. Stop the ridge-site container
+2. Remove the old container
+3. Pull the latest image
+4. Start a new container
+
+**Update Script:**
 ```bash
-# Automated database backup script
-docker exec fullstack-db pg_dump -U myuser myapp > /mnt/user/backups/app-db-$(date +%Y%m%d).sql
+#!/bin/bash
+docker stop ridge-site
+docker rm ridge-site
+docker pull [your-dockerhub-username]/ridge-site:latest
+docker run -d \
+  --name=ridge-site \
+  --restart=unless-stopped \
+  -p 3001:80 \
+  [your-dockerhub-username]/ridge-site:latest
 ```
 
-### 2. Application Data
+### Manual Updates
+
+If you need to build locally:
 ```bash
-# Backup application files
-tar -czf /mnt/user/backups/app-data-$(date +%Y%m%d).tar.gz /mnt/user/appdata/my-app/
-``` 
+# Build new image
+docker build -t ridge-site .
+
+# Stop and remove old container
+docker stop ridge-site
+docker rm ridge-site
+
+# Start new container
+docker run -d \
+  --name=ridge-site \
+  --restart=unless-stopped \
+  -p 3001:80 \
+  ridge-site
+```
+
+## Troubleshooting
+
+### Container Won't Start
+```bash
+# Check container logs
+docker logs ridge-site
+
+# Check if port is in use
+netstat -tulpn | grep :3001
+```
+
+### Site Not Accessible
+1. Verify container is running: `docker ps`
+2. Check SWAG logs: `docker logs swag`
+3. Test direct container access: `curl http://localhost:3001`
+4. Verify nginx configuration syntax: `docker exec swag nginx -t`
+
+### SSL Certificate Issues
+1. Check SWAG logs for Let's Encrypt errors
+2. Ensure ports 80 and 443 are forwarded to your server
+3. Verify domain DNS is pointing to your server IP
+
+## Monitoring
+
+### Health Checks
+```bash
+# Check container status
+docker ps | grep ridge-site
+
+# Check resource usage
+docker stats ridge-site
+
+# View recent logs
+docker logs ridge-site --tail 50
+```
+
+### Backup Considerations
+
+The ridge-site container is stateless, so no data backup is needed. The source code is backed up in GitHub, and images are stored in Docker Hub.
+
+For SWAG configuration backup:
+```bash
+# Backup SWAG config
+tar -czf swag-backup-$(date +%Y%m%d).tar.gz /mnt/user/appdata/swag/
+```
+
+## Security Notes
+
+- The container runs nginx on port 80 internally
+- All external traffic should go through SWAG (HTTPS)
+- No sensitive data is stored in the container
+- Regular updates are handled through the CI/CD pipeline
+
+## Performance Optimization
+
+- Static assets are cached for 1 year
+- Gzip compression is handled by SWAG
+- The Docker image is optimized with multi-stage builds
+- Consider using Cloudflare for additional CDN caching

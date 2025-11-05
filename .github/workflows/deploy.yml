@@ -1,4 +1,4 @@
-name: Deploy Ridge Site to K8s
+name: Build and Push Ridge Site
 
 on:
   push:
@@ -7,10 +7,10 @@ on:
 
 env:
   REGISTRY: docker.io
-  IMAGE_NAME: ${{ secrets.DOCKER_HUB_USERNAME }}/portfolio
+  IMAGE_NAME: ${{ secrets.DOCKER_HUB_USERNAME }}/ridge-site
 
 jobs:
-  build-and-deploy:
+  build-and-push:
     runs-on: ubuntu-latest
     
     steps:

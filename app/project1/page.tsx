@@ -86,7 +86,7 @@ const projects = [
   {
     id: 6,
     title: "DevOps Pipeline",
-    description: "Automated CI/CD pipeline with Docker & Kubernetes",
+    description: "Automated CI/CD pipeline with Docker containers",
     category: "DevOps",
     color: NORD_COLORS.aurora.nord14,
     link: "#", // You'll replace this with your actual link

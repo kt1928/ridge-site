@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  ridge-site:
+    image: ${DOCKER_HUB_USERNAME}/ridge-site:latest
+    container_name: ridge-site
+    restart: unless-stopped
+    ports:
+      - "3001:80"
+    networks:
+      - web
+
+networks:
+  web:
+    external: true
