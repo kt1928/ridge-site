@@ -1,0 +1,33 @@
+[
+  {
+    "id": "queens-node-1",
+    "name": "Queens-Node-1",
+    "type": "Proxmox Node",
+    "os": "Proxmox VE 8.2",
+    "lat": 40.72800,
+    "lng": -73.86300,
+    "status": "unknown",
+    "monitorId": "kuma-123",
+    "url": "https://proxmox.example.local"
+  },
+  {
+    "id": "brooklyn-web-1",
+    "name": "Brooklyn-Web-1",
+    "type": "Web Server",
+    "os": "Ubuntu 22.04 LTS",
+    "lat": 40.65940,
+    "lng": -73.93320,
+    "status": "unknown",
+    "monitorId": "kuma-124",
+    "url": "https://web1.example.local"
+  },
+  {
+    "id": "manhattan-db-1",
+    "name": "Manhattan-DB-1",
+    "type": "Database Server",
+    "os": "Debian 12",
+    "lat": 40.75830,
+    "lng": -73.98510,
+    "status": "unknown"
+  }
+]

@@ -1,5 +1,6 @@
 import type React from "react"
 import "./globals.css"
+import "@/styles/nord.css"
 import { ThemeProvider } from "@/components/theme-provider"
 
 export const metadata = {
