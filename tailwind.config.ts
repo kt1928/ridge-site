@@ -60,6 +60,24 @@ const config: Config = {
   				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
+  			},
+  			nord: {
+  				0: 'var(--nord0)',
+  				1: 'var(--nord1)',
+  				2: 'var(--nord2)',
+  				3: 'var(--nord3)',
+  				4: 'var(--nord4)',
+  				5: 'var(--nord5)',
+  				6: 'var(--nord6)',
+  				7: 'var(--nord7)',
+  				8: 'var(--nord8)',
+  				9: 'var(--nord9)',
+  				10: 'var(--nord10)',
+  				11: 'var(--nord11)',
+  				12: 'var(--nord12)',
+  				13: 'var(--nord13)',
+  				14: 'var(--nord14)',
+  				15: 'var(--nord15)',
   			}
   		},
   		borderRadius: {
