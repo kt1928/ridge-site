@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { Toaster } from '@/components/ui/toaster';
-import { Pencil, Trash2, Plus, Eye } from 'lucide-react';
+import { Pencil, Trash2, Plus, Eye, Box } from 'lucide-react';
 import Link from 'next/link';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -50,6 +50,8 @@ export default function AdminMapPage() {
     lng: -74.0060,
     monitorId: '',
     url: '',
+    rackPosition: undefined,
+    rackHeight: undefined,
   });
 
   const { data: devices, error } = useSWR<Device[]>('/api/devices', fetcher, {
@@ -65,6 +67,8 @@ export default function AdminMapPage() {
       lng: -74.0060,
       monitorId: '',
       url: '',
+      rackPosition: undefined,
+      rackHeight: undefined,
     });
     setEditingDevice(null);
   };
@@ -120,6 +124,8 @@ export default function AdminMapPage() {
       lng: device.lng,
       monitorId: device.monitorId || '',
       url: device.url || '',
+      rackPosition: device.rackPosition,
+      rackHeight: device.rackHeight,
     });
     setIsDialogOpen(true);
   };
@@ -170,6 +176,12 @@ export default function AdminMapPage() {
               <Button variant="outline" className="bg-nord-1 border-nord-3 text-nord-6 hover:bg-nord-2">
                 <Eye className="mr-2 h-4 w-4" />
                 View Map
+              </Button>
+            </Link>
+            <Link href="/rack">
+              <Button variant="outline" className="bg-nord-1 border-nord-3 text-nord-6 hover:bg-nord-2">
+                <Box className="mr-2 h-4 w-4" />
+                View 3D Rack
               </Button>
             </Link>
             <Dialog open={isDialogOpen} onOpenChange={(open) => {
@@ -249,6 +261,38 @@ export default function AdminMapPage() {
                           value={formData.lng}
                           onChange={(e) => setFormData({ ...formData, lng: parseFloat(e.target.value) })}
                           required
+                          className="bg-nord-2 border-nord-3 text-nord-6"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="rackPosition" className="text-nord-5">
+                          Rack Position (U) <span className="text-nord-4">(optional)</span>
+                        </Label>
+                        <Input
+                          id="rackPosition"
+                          type="number"
+                          min="1"
+                          max="42"
+                          value={formData.rackPosition || ''}
+                          onChange={(e) => setFormData({ ...formData, rackPosition: e.target.value ? parseInt(e.target.value) : undefined })}
+                          placeholder="e.g., 2"
+                          className="bg-nord-2 border-nord-3 text-nord-6"
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="rackHeight" className="text-nord-5">
+                          Height (U) <span className="text-nord-4">(optional)</span>
+                        </Label>
+                        <Input
+                          id="rackHeight"
+                          type="number"
+                          min="1"
+                          max="8"
+                          value={formData.rackHeight || ''}
+                          onChange={(e) => setFormData({ ...formData, rackHeight: e.target.value ? parseInt(e.target.value) : undefined })}
+                          placeholder="e.g., 2"
                           className="bg-nord-2 border-nord-3 text-nord-6"
                         />
                       </div>
