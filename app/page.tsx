@@ -1,12 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Canvas } from "@react-three/fiber"
+import { ArrowRight } from "lucide-react"
 import SketchfabModel from "@/components/sketchfab-model"
 import SimpleScene from "@/components/simple-scene"
-import { ArrowRight } from "lucide-react"
 
-// Nord color palette
+// Nord color palette (kept to preserve branding)
 const NORD_COLORS = {
   polarNight: {
     nord0: "#2E3440",
@@ -35,41 +35,37 @@ const NORD_COLORS = {
 }
 
 export default function Home() {
-  const [useSketchfab, setUseSketchfab] = useState(true) // Start with Sketchfab
+  const [useSketchfab, setUseSketchfab] = useState(true)
   const [isLoading, setIsLoading] = useState(true)
   const [progress, setProgress] = useState(0)
-  const [modelReady, setModelReady] = useState(false)
 
   useEffect(() => {
-    // Simulate progress bar filling up
+    // Extend scroll only on landing page (used by ScrollTrigger in 3D model)
+    document.body.dataset.scrollExtended = "true"
+    return () => {
+      delete document.body.dataset.scrollExtended
+    }
+  }, [])
+
+  useEffect(() => {
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
           clearInterval(progressInterval)
-          // Small delay after reaching 100% before hiding
-          setTimeout(() => {
-            setIsLoading(false)
-          }, 500)
+          setTimeout(() => setIsLoading(false), 450)
           return 100
         }
-        // Randomize progress increments for more realistic feel
-        const increment = Math.random() * 15 + 5 // 5-20% increments
+        const increment = Math.random() * 15 + 5
         return Math.min(prev + increment, 100)
       })
-    }, 200) // Update every 200ms
+    }, 200)
 
     return () => clearInterval(progressInterval)
   }, [])
 
-  // Listen for messages from the iframe to switch models
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event.data.action === "switchToLocal") {
-        setUseSketchfab(false)
-      }
-      if (event.data.action === "modelReady") {
-        setModelReady(true)
-      }
+      if (event.data?.action === "switchToLocal") setUseSketchfab(false)
     }
 
     window.addEventListener("message", handleMessage)
@@ -77,77 +73,74 @@ export default function Home() {
   }, [])
 
   return (
-    <main className="w-full h-screen relative" style={{ background: NORD_COLORS.polarNight.nord0 }}>
-      {/* Minimalist Progress Bar Loading Screen */}
+    <main className="relative h-dvh w-full overflow-hidden">
+      {/* Loading */}
       {isLoading && (
-        <div
-          className="absolute inset-0 z-50 flex flex-col items-center justify-center"
-          style={{
-            background: `linear-gradient(135deg, ${NORD_COLORS.polarNight.nord0} 0%, ${NORD_COLORS.polarNight.nord1} 100%)`,
-          }}
-        >
-          {/* Simple Blocky Progress Bar */}
-          <div className="w-96 h-8 max-w-md mx-auto bg-nord-polar-night-light relative overflow-hidden">
-            <div
-              className="h-full transition-all duration-300 ease-out"
-              style={{
-                width: `${progress}%`,
-                background: NORD_COLORS.frost.nord8,
-              }}
-            />
+        <div className="absolute inset-0 z-50 grid place-items-center bg-nord-0">
+          <div className="w-[22rem] max-w-[85vw] animate-in">
+            <div className="mb-4 text-center">
+              <div className="text-xs font-medium tracking-wide text-nord-5">RIDGE</div>
+              <div className="mt-1 text-xl font-semibold tracking-tight text-nord-6">Loading experience</div>
+            </div>
+
+            <div className="h-2 w-full overflow-hidden rounded-full bg-nord-1/70">
+              <div
+                className="h-full rounded-full transition-[width] duration-300 ease-out"
+                style={{ width: `${progress}%`, background: NORD_COLORS.frost.nord8 }}
+              />
+            </div>
           </div>
         </div>
       )}
 
-      {/* Top navigation bar */}
-      <div
-        className="absolute top-0 left-0 right-0 z-20 flex justify-between items-center px-8 py-6"
-        style={{
-          background: `linear-gradient(to bottom, ${NORD_COLORS.polarNight.nord1}CC, ${NORD_COLORS.polarNight.nord0}00)`,
-          backdropFilter: "blur(8px)",
-        }}
-      >
-        {/* Welcome text on left */}
-        <div>
-          <h1 className="text-4xl font-bold" style={{ color: NORD_COLORS.snowStorm.nord6 }}>
-            Welcome
-          </h1>
-        </div>
+      {/* Header */}
+      <header className="pointer-events-none absolute left-0 right-0 top-0 z-20 px-4 pt-4 sm:px-8 sm:pt-6">
+        <div className="pointer-events-auto glass mx-auto flex max-w-6xl items-center justify-between rounded-2xl px-5 py-4">
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight text-nord-6 sm:text-2xl">Welcome</h1>
+            <p className="mt-0.5 text-sm text-nord-5 text-balance">Interactive 3D portal. Explore projects and the map.</p>
+          </div>
 
-        {/* Enter button on right */}
-        <div>
-          <a
-            href="/project1"
-            className="flex items-center gap-2 px-6 py-3 rounded-md transition-all duration-300 hover:scale-105"
-            style={{
-              background: NORD_COLORS.frost.nord8,
-              color: NORD_COLORS.polarNight.nord0,
-              boxShadow: `0 4px 20px ${NORD_COLORS.frost.nord8}66`,
-            }}
-          >
-            <span className="font-medium text-lg">Enter</span>
-            <ArrowRight size={20} />
-          </a>
+          <nav className="flex items-center gap-3">
+            <a
+              href="/map"
+              className="rounded-xl px-4 py-2 text-sm font-medium text-nord-6/90 transition-colors hover:bg-nord-3/20 focus-visible:focus-ring"
+            >
+              Map
+            </a>
+            <a
+              href="/project1"
+              className="group inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all hover:translate-y-[-1px] focus-visible:focus-ring"
+              style={{
+                background: NORD_COLORS.frost.nord8,
+                color: NORD_COLORS.polarNight.nord0,
+                boxShadow: `0 10px 30px ${NORD_COLORS.frost.nord8}33`,
+              }}
+            >
+              Enter
+              <ArrowRight size={18} className="transition-transform group-hover:translate-x-0.5" />
+            </a>
+          </nav>
         </div>
-      </div>
+      </header>
 
-      {/* Status indicator */}
-      <div className="absolute bottom-8 left-8 z-10">
-        <div className="p-2 rounded-lg" style={{ background: NORD_COLORS.polarNight.nord1 }}>
+      {/* Status */}
+      <div className="absolute bottom-6 left-4 z-10 sm:bottom-8 sm:left-8">
+        <div className="glass rounded-2xl px-4 py-3">
           <div className="flex items-center gap-2">
             <div
-              className="w-2 h-2 rounded-full"
+              className="h-2 w-2 rounded-full"
               style={{ background: useSketchfab ? NORD_COLORS.aurora.nord14 : NORD_COLORS.frost.nord10 }}
             />
-            <span className="text-sm" style={{ color: NORD_COLORS.snowStorm.nord6 }}>
+            <span className="text-xs font-medium text-nord-6/90">
               {useSketchfab ? "Sketchfab Model (RS Logo)" : "Local Model"}
             </span>
           </div>
         </div>
       </div>
 
-      {/* 3D Content */}
-      <div className="w-full h-full">
+      {/* 3D */}
+      <div className="h-full w-full">
         {useSketchfab ? (
           <SketchfabModel modelId="37c146c94b1e4d28b34d2d428247e5c0" />
         ) : (

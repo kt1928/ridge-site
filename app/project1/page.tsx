@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { ArrowRight, Instagram, Youtube } from "lucide-react"
 
 // Nord color palette
@@ -148,7 +148,7 @@ export default function ProjectDirectoryPage() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false)
-    }, 800)
+    }, 500)
     return () => clearTimeout(timer)
   }, [])
 
@@ -167,16 +167,13 @@ export default function ProjectDirectoryPage() {
   // Prevent scrolling on desktop only
   useEffect(() => {
     if (!isMobile) {
-      // Disable scrolling on desktop
       document.body.style.overflow = "hidden"
       document.documentElement.style.overflow = "hidden"
     } else {
-      // Ensure scrolling is enabled on mobile
       document.body.style.overflow = "auto"
       document.documentElement.style.overflow = "auto"
     }
 
-    // Cleanup function
     return () => {
       document.body.style.overflow = "auto"
       document.documentElement.style.overflow = "auto"
@@ -185,60 +182,47 @@ export default function ProjectDirectoryPage() {
 
   if (isLoading) {
     return (
-      <div
-        className="h-screen flex items-center justify-center"
-        style={{
-          background: `linear-gradient(135deg, ${NORD_COLORS.polarNight.nord0} 0%, ${NORD_COLORS.polarNight.nord1} 100%)`,
-        }}
-      >
-        <div
-          className="w-16 h-16 rounded-full border-t-transparent animate-spin"
-          style={{
-            borderWidth: "4px",
-            borderStyle: "solid",
-            borderColor: NORD_COLORS.frost.nord8,
-            borderTopColor: "transparent",
-          }}
-        />
+      <div className="grid min-h-dvh place-items-center bg-nord-0">
+        <div className="w-[22rem] max-w-[85vw] animate-in">
+          <div className="mb-4 text-center">
+            <div className="text-xs font-medium tracking-wide text-nord-5">RIDGE</div>
+            <div className="mt-1 text-xl font-semibold tracking-tight text-nord-6">Loading projects</div>
+          </div>
+
+          <div className="h-2 w-full overflow-hidden rounded-full bg-nord-1/70">
+            <div className="h-full w-1/2 rounded-full bg-nord-8/90" />
+          </div>
+        </div>
       </div>
     )
   }
 
   return (
-    <div
-      className={`${isMobile ? "min-h-screen overflow-auto" : "h-screen w-screen fixed inset-0 overflow-hidden"}`}
-      style={{
-        background: `linear-gradient(135deg, ${NORD_COLORS.polarNight.nord0} 0%, ${NORD_COLORS.polarNight.nord1} 100%)`,
-      }}
-    >
+    <div className="min-h-dvh bg-nord-0">
       {/* Desktop: Vertical Social Media Icons */}
       {!isMobile && (
-        <div className="absolute left-8 flex flex-col gap-6 z-10" style={{ bottom: "3rem" }}>
-          {socialLinks.map((social, index) => {
+        <div className="fixed left-8 z-20 flex flex-col gap-6" style={{ bottom: "3rem" }}>
+          {socialLinks.map((social) => {
             const IconComponent = social.icon
+            const isHovered = hoveredSocial === social.name
             return (
               <a
                 key={social.name}
                 href={social.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="transition-all duration-300 hover:scale-110"
+                className="transition-transform duration-300 hover:scale-110"
                 onMouseEnter={() => setHoveredSocial(social.name)}
                 onMouseLeave={() => setHoveredSocial(null)}
-                style={{
-                  transform: hoveredSocial === social.name ? "translateX(4px)" : "translateX(0)",
-                }}
+                style={{ transform: isHovered ? "translateX(4px)" : "translateX(0)" }}
               >
                 {social.name === "TikTok" ? (
-                  <TikTokIcon
-                    size={32}
-                    color={hoveredSocial === social.name ? social.color : NORD_COLORS.snowStorm.nord5}
-                  />
+                  <TikTokIcon size={32} color={isHovered ? social.color : NORD_COLORS.snowStorm.nord5} />
                 ) : (
                   <IconComponent
                     size={32}
                     style={{
-                      color: hoveredSocial === social.name ? social.color : NORD_COLORS.snowStorm.nord5,
+                      color: isHovered ? social.color : NORD_COLORS.snowStorm.nord5,
                       transition: "color 0.3s ease",
                     }}
                   />
@@ -249,134 +233,129 @@ export default function ProjectDirectoryPage() {
         </div>
       )}
 
-      {/* Main Content */}
-      <main
-        className={`${isMobile ? "min-h-screen pb-24" : "h-full flex items-center justify-center"} px-6 ${isMobile ? "pt-8" : ""}`}
-      >
-        <div className={`${isMobile ? "w-full" : "max-w-6xl w-full"}`}>
-          {/* Projects Grid */}
-          <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"}`}>
-            {projects.map((project) => (
-              <a
-                key={project.id}
-                href={project.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative block"
-                onMouseEnter={() => setHoveredProject(project.id)}
-                onMouseLeave={() => setHoveredProject(null)}
-              >
-                <div
-                  className={`relative p-6 rounded-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 cursor-pointer flex flex-col ${isMobile ? "h-48" : "h-64"}`}
-                  style={{
-                    background: `linear-gradient(145deg, ${NORD_COLORS.polarNight.nord1}, ${NORD_COLORS.polarNight.nord2})`,
-                    boxShadow:
-                      hoveredProject === project.id
-                        ? `0 20px 40px ${project.color}33, 0 8px 16px ${NORD_COLORS.polarNight.nord0}66`
-                        : `0 8px 32px ${NORD_COLORS.polarNight.nord0}66, inset 0 1px 0 ${NORD_COLORS.polarNight.nord3}33`,
-                    border: `1px solid ${hoveredProject === project.id ? project.color + "66" : NORD_COLORS.polarNight.nord3}`,
-                  }}
+      <main className="px-5 py-8 sm:px-8 sm:py-10">
+        <div className="mx-auto max-w-6xl">
+          {/* Header */}
+          <header className="glass animate-in rounded-3xl px-6 py-6 sm:px-8">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <div className="text-xs font-medium tracking-wide text-nord-5">PROJECT DIRECTORY</div>
+                <h1 className="mt-1 text-2xl font-semibold tracking-tight text-nord-6 sm:text-3xl">Project 1</h1>
+                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-nord-5 text-balance">
+                  A curated set of experiments and builds. Tap a card to open it.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <a
+                  href="/"
+                  className="rounded-xl px-4 py-2 text-sm font-medium text-nord-6/90 transition-colors hover:bg-nord-3/20 focus-visible:focus-ring"
                 >
-                  {/* Gradient overlay for 3D effect */}
-                  <div
-                    className="absolute inset-0 rounded-2xl opacity-20 transition-opacity duration-500"
-                    style={{
-                      background: `linear-gradient(145deg, transparent, ${project.color}22)`,
-                      opacity: hoveredProject === project.id ? 0.3 : 0.1,
-                    }}
-                  />
+                  Home
+                </a>
+                <a
+                  href="/map"
+                  className="rounded-xl px-4 py-2 text-sm font-medium text-nord-6/90 transition-colors hover:bg-nord-3/20 focus-visible:focus-ring"
+                >
+                  Map
+                </a>
+              </div>
+            </div>
+          </header>
 
-                  {/* Content */}
-                  <div className="relative z-10 flex flex-col h-full">
-                    {/* Top content */}
-                    <div className="flex-1">
-                      {/* Category Badge */}
-                      <div className="mb-3">
-                        <span
-                          className="inline-block px-3 py-1 rounded-full text-xs font-medium"
-                          style={{
-                            background: project.color + "22",
-                            color: project.color,
-                            border: `1px solid ${project.color}44`,
-                          }}
-                        >
-                          {project.category}
-                        </span>
-                      </div>
-
-                      {/* Project Title */}
-                      <h3
-                        className={`font-bold mb-2 ${isMobile ? "text-lg" : "text-lg"}`}
-                        style={{ color: NORD_COLORS.snowStorm.nord6 }}
-                      >
-                        {project.title}
-                      </h3>
-
-                      {/* Project Description */}
-                      <p className="text-sm leading-relaxed" style={{ color: NORD_COLORS.snowStorm.nord5 }}>
-                        {project.description}
-                      </p>
-                    </div>
-
-                    {/* Arrow at bottom right */}
-                    <div className="flex items-end justify-end mt-3">
+          {/* Grid */}
+          <section className="mt-8">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {projects.map((project) => {
+                const isHovered = hoveredProject === project.id
+                return (
+                  <a
+                    key={project.id}
+                    href={project.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group block focus-visible:focus-ring rounded-3xl"
+                    onMouseEnter={() => setHoveredProject(project.id)}
+                    onMouseLeave={() => setHoveredProject(null)}
+                  >
+                    <div
+                      className="glass relative h-full overflow-hidden rounded-3xl p-6 transition-transform duration-300 will-change-transform group-hover:-translate-y-1 group-hover:scale-[1.01]"
+                      style={{ borderColor: isHovered ? `${project.color}66` : undefined }}
+                    >
+                      {/* soft accent */}
                       <div
-                        className="transition-transform duration-300"
+                        className="pointer-events-none absolute -right-24 -top-24 h-56 w-56 rounded-full blur-3xl transition-opacity duration-300"
                         style={{
-                          transform: hoveredProject === project.id ? "translateX(4px)" : "translateX(0)",
+                          background: `radial-gradient(circle at 30% 30%, ${project.color}40, transparent 70%)`,
+                          opacity: isHovered ? 1 : 0.7,
                         }}
-                      >
-                        <ArrowRight size={18} style={{ color: NORD_COLORS.snowStorm.nord6 }} />
-                      </div>
-                    </div>
-                  </div>
+                      />
 
-                  {/* Shine effect on hover */}
-                  <div
-                    className="absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-500 pointer-events-none"
-                    style={{
-                      background: `linear-gradient(45deg, transparent 30%, ${NORD_COLORS.snowStorm.nord6}11 50%, transparent 70%)`,
-                      opacity: hoveredProject === project.id ? 1 : 0,
-                    }}
-                  />
-                </div>
-              </a>
-            ))}
-          </div>
+                      <div className="relative flex h-full flex-col">
+                        <div className="mb-4">
+                          <span
+                            className="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium"
+                            style={{
+                              background: `${project.color}22`,
+                              color: project.color,
+                              border: `1px solid ${project.color}44`,
+                            }}
+                          >
+                            {project.category}
+                          </span>
+                        </div>
+
+                        <h3 className="text-lg font-semibold tracking-tight text-nord-6">{project.title}</h3>
+                        <p className="mt-2 text-sm leading-relaxed text-nord-5">{project.description}</p>
+
+                        <div className="mt-6 flex items-center justify-end">
+                          <span className="inline-flex items-center gap-2 text-sm font-medium text-nord-6/90">
+                            Open
+                            <ArrowRight size={18} className="transition-transform group-hover:translate-x-0.5" />
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* top highlight */}
+                      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-white/10" />
+                    </div>
+                  </a>
+                )
+              })}
+            </div>
+          </section>
         </div>
       </main>
 
       {/* Mobile: Fixed Bottom Social Media Icons */}
       {isMobile && (
         <div
-          className="fixed bottom-0 left-0 right-0 z-50 flex justify-center items-center gap-8 py-4"
+          className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-center gap-8 px-6 py-4"
           style={{
             background: `linear-gradient(to top, ${NORD_COLORS.polarNight.nord0} 0%, ${NORD_COLORS.polarNight.nord0}CC 70%, transparent 100%)`,
-            backdropFilter: "blur(8px)",
+            backdropFilter: "blur(12px)",
           }}
         >
           {socialLinks.map((social) => {
             const IconComponent = social.icon
+            const isHovered = hoveredSocial === social.name
             return (
               <a
                 key={social.name}
                 href={social.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="transition-all duration-300 active:scale-95"
+                className="transition-transform duration-300 active:scale-95"
                 onTouchStart={() => setHoveredSocial(social.name)}
                 onTouchEnd={() => setHoveredSocial(null)}
               >
                 {social.name === "TikTok" ? (
-                  <TikTokIcon
-                    size={28}
-                    color={hoveredSocial === social.name ? social.color : NORD_COLORS.snowStorm.nord5}
-                  />
+                  <TikTokIcon size={28} color={isHovered ? social.color : NORD_COLORS.snowStorm.nord5} />
                 ) : (
                   <IconComponent
                     size={28}
                     style={{
-                      color: hoveredSocial === social.name ? social.color : NORD_COLORS.snowStorm.nord5,
+                      color: isHovered ? social.color : NORD_COLORS.snowStorm.nord5,
                       transition: "color 0.3s ease",
                     }}
                   />

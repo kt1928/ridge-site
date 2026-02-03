@@ -1,0 +1,60 @@
+:root {
+  /* Apple-like type + spacing */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+    "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+
+  /* Radii */
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+
+  /* Elevation */
+  --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.35);
+  --shadow-glass: 0 8px 24px rgba(0, 0, 0, 0.25);
+
+  /* Backdrop */
+  --glass-bg: color-mix(in oklab, var(--nord1) 55%, transparent);
+  --glass-border: color-mix(in oklab, var(--nord3) 55%, transparent);
+
+  /* Focus ring */
+  --focus: color-mix(in oklab, var(--nord8) 65%, transparent);
+}
+
+html {
+  font-family: var(--font-sans);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: var(--shadow-glass);
+}
+
+.focus-ring {
+  outline: none;
+  box-shadow: 0 0 0 4px var(--focus);
+}
+
+.animate-in {
+  animation: in 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.text-balance {
+  text-wrap: balance;
+}

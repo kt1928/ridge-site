@@ -10,35 +10,16 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN corepack enable pnpm && pnpm run build
 
-FROM nginx:alpine AS runner
+FROM node:20-alpine AS runner
 WORKDIR /app
 
-# Copy static build
-COPY --from=builder /app/out /usr/share/nginx/html
+ENV NODE_ENV=production
+ENV PORT=3000
 
-# Next.js specific nginx config
-RUN cat > /etc/nginx/conf.d/default.conf << 'EOF'
-server {
-    listen 80;
-    server_name _;
-    root /usr/share/nginx/html;
-    
-    # Next.js static files
-    location /_next/static {
-        add_header Cache-Control "public, max-age=31536000, immutable";
-    }
-    
-    # Main app
-    location / {
-        try_files $uri $uri.html $uri/ /index.html;
-    }
-    
-    # Security headers
-    add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-Content-Type-Options "nosniff" always;
-    add_header X-XSS-Protection "1; mode=block" always;
-}
-EOF
+# Copy necessary files
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+EXPOSE 3000
+CMD ["node", "server.js"]

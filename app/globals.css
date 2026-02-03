@@ -50,13 +50,15 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-  background: var(--nord0);
+  background: radial-gradient(1200px 900px at 50% 20%, color-mix(in oklab, var(--nord1) 45%, transparent), transparent 60%),
+    var(--nord0);
   color: var(--nord6);
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-sans, ui-sans-serif, system-ui);
 }
 
-/* Create a long scrollable page to trigger the rotation animation */
-body::after {
+/* Only the landing page needs a long scroll range for ScrollTrigger.
+   Other pages opt-out to avoid unnecessary blank space. */
+body[data-scroll-extended="true"]::after {
   content: "";
   display: block;
   height: 300vh;
