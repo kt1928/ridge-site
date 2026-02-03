@@ -5,9 +5,13 @@ import "@/styles/design-tokens.css"
 import { ThemeProvider } from "@/components/theme-provider"
 
 export const metadata = {
-  title: "3D Portal Portfolio",
-  description: "Interactive 3D portal to showcase projects",
-  generator: "v0.dev",
+  title: "Kappy — Homelab, Automation & Real Estate",
+  description:
+    "Kappy (Forest Hills, Queens) — real estate operations, homelab/self-hosting, and business automation.",
+  applicationName: "Kappy",
+  icons: {
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+  },
 }
 
 export default function RootLayout({

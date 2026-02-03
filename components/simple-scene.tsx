@@ -8,7 +8,7 @@ import type * as THREE from "three"
 
 // Define the project data with Nord colors
 const PROJECTS = [
-  { name: "Project 1", path: "/project1", color: "#88C0D0" },
+  { name: "Dashboard", path: "/dashboard", color: "#88C0D0" },
   { name: "Project 2", path: "/project2", color: "#81A1C1" },
   { name: "Project 3", path: "/project3", color: "#5E81AC" },
   { name: "Project 4", path: "/project4", color: "#BF616A" },

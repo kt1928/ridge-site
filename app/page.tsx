@@ -112,7 +112,7 @@ export default function Home() {
         {/* Enter button on right */}
         <div>
           <a
-            href="/project1"
+            href="/dashboard"
             className="flex items-center gap-2 px-6 py-3 rounded-md transition-all duration-300 hover:scale-105"
             style={{
               background: NORD_COLORS.frost.nord8,

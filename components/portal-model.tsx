@@ -13,7 +13,7 @@ const MODEL_PATH = "/models/rs-logo.glb"
 
 // Define the project data
 const PROJECTS = [
-  { name: "Project 1", path: "/project1", color: "#4285F4" },
+  { name: "Dashboard", path: "/dashboard", color: "#4285F4" },
   { name: "Project 2", path: "/project2", color: "#EA4335" },
   { name: "Project 3", path: "/project3", color: "#FBBC05" },
   { name: "Project 4", path: "/project4", color: "#34A853" },
