@@ -3,19 +3,14 @@
 import { useEffect, useMemo, useState } from "react"
 import {
   ArrowUpRight,
-  Building2,
-  Coffee,
   Database,
   FolderGit2,
   GitBranch,
   HardDrive,
-  Home,
   Monitor,
   Network,
-  Server,
   Shield,
   Workflow,
-  Zap,
 } from "lucide-react"
 
 const NORD = {
@@ -46,7 +41,6 @@ type Card = {
   href?: string
   icon?: any
   accent?: string
-  category?: string
 }
 
 type Group = {
@@ -66,7 +60,7 @@ function StatusPill({ status }: { status: Status }) {
       bd: `${NORD.nord14}55`,
     },
     "in-progress": {
-      label: "In Progress",
+      label: "In progress",
       fg: NORD.nord13,
       bg: `${NORD.nord13}22`,
       bd: `${NORD.nord13}55`,
@@ -88,7 +82,7 @@ function StatusPill({ status }: { status: Status }) {
 
   return (
     <span
-      className="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium"
+      className="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium"
       style={{ color: s.fg, background: s.bg, border: `1px solid ${s.bd}` }}
     >
       {s.label}
@@ -96,7 +90,7 @@ function StatusPill({ status }: { status: Status }) {
   )
 }
 
-function ServiceCard({ item }: { item: Card }) {
+function GlassCard({ item }: { item: Card }) {
   const [hover, setHover] = useState(false)
 
   return (
@@ -109,171 +103,65 @@ function ServiceCard({ item }: { item: Card }) {
       onMouseLeave={() => setHover(false)}
     >
       <div
-        className="glass relative h-full overflow-hidden rounded-3xl p-6 transition-all duration-500 will-change-transform group-hover:-translate-y-2 group-hover:scale-[1.02]"
-        style={{ 
-          borderColor: hover ? `${item.accent || NORD.nord8}66` : undefined,
-          boxShadow: hover ? `0 20px 40px ${(item.accent || NORD.nord8)}20, 0 0 0 1px ${(item.accent || NORD.nord8)}30` : undefined,
-        }}
+        className="glass relative h-full overflow-hidden rounded-3xl p-6 transition-transform duration-300 will-change-transform group-hover:-translate-y-1 group-hover:scale-[1.01]"
+        style={{ borderColor: hover ? `${item.accent || NORD.nord8}66` : undefined }}
       >
-        {/* Animated background glow */}
         <div
-          className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full blur-3xl transition-all duration-700"
+          className="pointer-events-none absolute -right-24 -top-24 h-56 w-56 rounded-full blur-3xl transition-opacity duration-300"
           style={{
-            background: `radial-gradient(circle at 30% 30%, ${(item.accent || NORD.nord8) + "50"}, transparent 70%)`,
-            opacity: hover ? 1 : 0.3,
-            transform: hover ? 'scale(1.2)' : 'scale(1)',
+            background: `radial-gradient(circle at 30% 30%, ${(item.accent || NORD.nord8) + "40"}, transparent 70%)`,
+            opacity: hover ? 1 : 0.7,
           }}
         />
 
-        <div className="relative flex h-full flex-col">
-          <div className="flex items-start justify-between gap-4 mb-4">
-            <div className="flex items-center gap-4">
-              <div
-                className="grid h-12 w-12 place-items-center rounded-2xl transition-all duration-300"
-                style={{ 
-                  background: `${item.accent || NORD.nord8}18`, 
-                  border: `1px solid ${(item.accent || NORD.nord8) + "33"}`,
-                  transform: hover ? 'scale(1.1)' : 'scale(1)',
-                }}
-              >
-                {item.icon && <item.icon size={20} style={{ color: item.accent || NORD.nord8 }} />}
-              </div>
+        <div className="relative flex h-full flex-col gap-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-center gap-3">
+              {item.icon ? (
+                <div
+                  className="grid h-10 w-10 place-items-center rounded-2xl"
+                  style={{ background: `${item.accent || NORD.nord8}18`, border: `1px solid ${(item.accent || NORD.nord8) + "33"}` }}
+                >
+                  <item.icon size={18} style={{ color: item.accent || NORD.nord8 }} />
+                </div>
+              ) : null}
               <div>
-                <h3 className="text-lg font-semibold tracking-tight text-nord-6 group-hover:text-nord-6 transition-colors">
-                  {item.title}
-                </h3>
-                <p className="mt-1 text-sm leading-relaxed text-nord-5 text-pretty">
-                  {item.description}
-                </p>
+                <h3 className="text-base font-semibold tracking-tight text-nord-6">{item.title}</h3>
+                <p className="mt-1 text-sm leading-relaxed text-nord-5 text-pretty">{item.description}</p>
               </div>
             </div>
 
-            {item.status && (
-              <div className="shrink-0">
-                <StatusPill status={item.status} />
-              </div>
-            )}
+            <div className="shrink-0">
+              {item.status ? <StatusPill status={item.status} /> : null}
+            </div>
           </div>
 
-          <div className="mt-auto flex items-center justify-between">
-            {item.category && (
-              <span className="text-xs font-medium px-2 py-1 rounded-lg" 
-                    style={{ 
-                      color: `${item.accent || NORD.nord8}`, 
-                      background: `${item.accent || NORD.nord8}15` 
-                    }}>
-                {item.category}
-              </span>
-            )}
-            <span className="inline-flex items-center gap-2 text-sm font-medium text-nord-6/90 ml-auto">
-              {item.href ? "Open" : "View"}
-              <ArrowUpRight size={16} className="transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+          <div className="mt-auto flex items-center justify-end">
+            <span className="inline-flex items-center gap-2 text-sm font-medium text-nord-6/90">
+              {item.href ? "Open" : "Details"}
+              <ArrowUpRight size={18} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </span>
           </div>
         </div>
 
-        {/* Top highlight */}
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-white/10" />
       </div>
     </a>
   )
 }
 
-function HeroSection() {
-  return (
-    <section className="relative overflow-hidden rounded-3xl glass p-8 md:p-12">
-      {/* Background pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, ${NORD.nord8} 1px, transparent 0)`,
-          backgroundSize: '24px 24px'
-        }} />
-      </div>
-      
-      <div className="relative">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
-          <div className="flex-1">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6"
-                 style={{
-                   background: `${NORD.nord14}15`,
-                   border: `1px solid ${NORD.nord14}30`,
-                 }}>
-              <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: NORD.nord14 }} />
-              <span className="text-xs font-medium" style={{ color: NORD.nord14 }}>
-                System Online
-              </span>
-            </div>
-            
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-nord-6">
-              Welcome back,
-              <br />
-              <span style={{ color: NORD.nord8 }}>Kappy</span>
-            </h1>
-            
-            <p className="text-lg leading-relaxed text-nord-5 max-w-2xl mb-8">
-              Managing 18 rental units across Brooklyn & Queens through QBSON LLC, 
-              while building a comprehensive homelab ecosystem and passion projects.
-            </p>
-
-            <div className="flex flex-wrap gap-4">
-              <div className="flex items-center gap-3 px-4 py-3 rounded-2xl glass">
-                <Building2 size={20} style={{ color: NORD.nord12 }} />
-                <div>
-                  <div className="text-sm font-semibold text-nord-6">Real Estate</div>
-                  <div className="text-xs text-nord-5">18 Units • QBSON LLC</div>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-3 px-4 py-3 rounded-2xl glass">
-                <Server size={20} style={{ color: NORD.nord8 }} />
-                <div>
-                  <div className="text-sm font-semibold text-nord-6">Homelab</div>
-                  <div className="text-xs text-nord-5">15+ Services • 3 Servers</div>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-3 px-4 py-3 rounded-2xl glass">
-                <Coffee size={20} style={{ color: NORD.nord13 }} />
-                <div>
-                  <div className="text-sm font-semibold text-nord-6">Coffee Dreams</div>
-                  <div className="text-xs text-nord-5">Future Shop Owner</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex-shrink-0">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="glass rounded-2xl p-4 text-center">
-                <div className="text-3xl font-bold mb-1" style={{ color: NORD.nord8 }}>99.9%</div>
-                <div className="text-xs text-nord-5">Uptime</div>
-              </div>
-              <div className="glass rounded-2xl p-4 text-center">
-                <div className="text-3xl font-bold mb-1" style={{ color: NORD.nord14 }}>24/7</div>
-                <div className="text-xs text-nord-5">Monitoring</div>
-              </div>
-              <div className="glass rounded-2xl p-4 text-center">
-                <div className="text-3xl font-bold mb-1" style={{ color: NORD.nord13 }}>15+</div>
-                <div className="text-xs text-nord-5">Services</div>
-              </div>
-              <div className="glass rounded-2xl p-4 text-center">
-                <div className="text-3xl font-bold mb-1" style={{ color: NORD.nord15 }}>4</div>
-                <div className="text-xs text-nord-5">Projects</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-}
-
 export default function DashboardPage() {
-  const [mounted, setMounted] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
-    setMounted(true)
-    // Allow scrolling here (landing page handles its own scroll behavior)
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+    return () => window.removeEventListener("resize", checkMobile)
+  }, [])
+
+  // Allow scrolling here (landing page handles its own scroll behavior)
+  useEffect(() => {
     document.body.style.overflow = "auto"
     document.documentElement.style.overflow = "auto"
   }, [])
@@ -281,98 +169,103 @@ export default function DashboardPage() {
   const groups: Group[] = useMemo(
     () => [
       {
-        title: "ridgeserver",
-        subtitle: "Media Automation Stack",
+        title: "Self-hosted — ridgeserver",
+        subtitle: "Media automation stack",
         icon: Monitor,
         accent: NORD.nord8,
         items: [
-          { title: "Plex", description: "Personal media server with 4K streaming", icon: Monitor, accent: NORD.nord8, category: "Media" },
-          { title: "Overseerr", description: "Request management & approval system", icon: Network, accent: NORD.nord7, category: "Management" },
-          { title: "Tautulli", description: "Plex analytics and monitoring", icon: Database, accent: NORD.nord9, category: "Analytics" },
-          { title: "Sonarr", description: "TV series automation", icon: Workflow, accent: NORD.nord10, category: "Automation" },
-          { title: "Sonarr (Anime)", description: "Dedicated anime automation", icon: Workflow, accent: NORD.nord15, category: "Automation" },
-          { title: "Sonarr (K-Drama)", description: "Korean drama automation", icon: Workflow, accent: NORD.nord12, category: "Automation" },
-          { title: "Radarr", description: "Movie collection automation", icon: Workflow, accent: NORD.nord14, category: "Automation" },
-          { title: "Radarr (4K)", description: "4K movie automation", icon: Workflow, accent: NORD.nord13, category: "Automation" },
-          { title: "Jackett", description: "Indexer proxy for trackers", icon: Network, accent: NORD.nord9, category: "Indexing" },
-          { title: "qBittorrent", description: "Download client with VPN", icon: HardDrive, accent: NORD.nord10, category: "Downloads" },
+          { title: "Plex", description: "Media server", icon: Monitor, accent: NORD.nord8 },
+          { title: "Overseerr", description: "Requests & approvals", icon: Network, accent: NORD.nord7 },
+          { title: "Tautulli", description: "Plex analytics", icon: Database, accent: NORD.nord9 },
+          { title: "Sonarr", description: "TV automation", icon: Workflow, accent: NORD.nord10 },
+          { title: "Sonarr (Anime)", description: "Anime automation", icon: Workflow, accent: NORD.nord15 },
+          { title: "Sonarr (K-Drama)", description: "K-Drama automation", icon: Workflow, accent: NORD.nord12 },
+          { title: "Radarr", description: "Movie automation", icon: Workflow, accent: NORD.nord14 },
+          { title: "Radarr (4K)", description: "4K movie automation", icon: Workflow, accent: NORD.nord13 },
+          { title: "Jackett", description: "Indexer proxy", icon: Network, accent: NORD.nord9 },
+          { title: "qBittorrent", description: "Downloads", icon: HardDrive, accent: NORD.nord10 },
+          { title: "Requestrr", description: "Discord request bots (x3)", icon: Network, accent: NORD.nord11 },
         ],
       },
       {
-        title: "tower",
-        subtitle: "Storage & Security Hub",
+        title: "Self-hosted — tower",
+        subtitle: "Storage, photos & edge security",
         icon: HardDrive,
         accent: NORD.nord9,
         items: [
-          { title: "Immich", description: "Self-hosted photo management (Google Photos alternative)", icon: Database, accent: NORD.nord8, category: "Photos" },
-          { title: "Syncthing", description: "Continuous file synchronization", icon: HardDrive, accent: NORD.nord14, category: "Sync" },
-          { title: "SWAG", description: "Secure reverse proxy with SSL", icon: Network, accent: NORD.nord9, category: "Proxy" },
-          { title: "CrowdSec", description: "Collaborative security engine", icon: Shield, accent: NORD.nord11, category: "Security" },
+          { title: "Immich", description: "Photo management (Google Photos-like)", icon: Database, accent: NORD.nord8 },
+          { title: "Syncthing", description: "File sync", icon: HardDrive, accent: NORD.nord14 },
+          { title: "SWAG", description: "Reverse proxy", icon: Network, accent: NORD.nord9 },
+          { title: "CrowdSec", description: "Security", icon: Shield, accent: NORD.nord11 },
         ],
       },
       {
-        title: "kapservices",
-        subtitle: "Operations & Automation",
+        title: "Self-hosted — kapservices",
+        subtitle: "Ops + automation",
         icon: Workflow,
         accent: NORD.nord14,
         items: [
-          { title: "n8n", description: "Workflow automation platform", icon: Workflow, accent: NORD.nord14, category: "Automation" },
-          { title: "Snipe-IT", description: "Asset management system", icon: FolderGit2, accent: NORD.nord13, category: "Management" },
-          { title: "Homarr", description: "Homelab dashboard", icon: Monitor, accent: NORD.nord8, category: "Dashboard" },
+          { title: "n8n", description: "Workflow automation", icon: Workflow, accent: NORD.nord14 },
+          { title: "Snipe-IT", description: "Asset management", icon: FolderGit2, accent: NORD.nord13 },
+          { title: "Homarr", description: "Dashboard", icon: Monitor, accent: NORD.nord8 },
         ],
       },
       {
         title: "Infrastructure",
-        subtitle: "Core Systems",
+        subtitle: "How everything is connected",
         icon: Network,
         accent: NORD.nord10,
         items: [
-          { title: "Proxmox VE", description: "Virtualization platform on kapmox", icon: HardDrive, accent: NORD.nord10, category: "Hypervisor" },
-          { title: "Cloudflare Tunnel", description: "Secure external access", icon: Network, accent: NORD.nord8, category: "Networking" },
-          { title: "Tailscale", description: "Mesh VPN for remote access", icon: Network, accent: NORD.nord7, category: "VPN" },
+          { title: "kapmox (Proxmox)", description: "Hypervisor", icon: HardDrive, accent: NORD.nord10 },
+          { title: "Cloudflare Tunnel", description: "External access", icon: Network, accent: NORD.nord8 },
+          { title: "Tailscale", description: "Mesh VPN", icon: Network, accent: NORD.nord7 },
         ],
       },
       {
-        title: "Active Projects",
-        subtitle: "Current Development",
+        title: "Projects",
+        subtitle: "Things I’m building",
         icon: FolderGit2,
         accent: NORD.nord15,
         items: [
           {
             title: "kap-ring",
-            description: "3-2-1 backup & disaster recovery solution for homelab",
+            description: "3-2-1 backup & disaster recovery solution",
             status: "active",
             href: "https://github.com/kt1928/kap-ring",
             icon: HardDrive,
             accent: NORD.nord14,
-            category: "Backup"
           },
           {
             title: "kap-estate",
-            description: "NYC real estate intelligence & analytics platform",
+            description: "NYC real estate intelligence platform",
             status: "in-progress",
             href: "https://github.com/kt1928/kap-estate",
             icon: Database,
             accent: NORD.nord8,
-            category: "Real Estate"
           },
           {
             title: "node-system",
-            description: "Homelab deployment & infrastructure management",
+            description: "Homelab deployment infrastructure",
             status: "stable",
             href: "https://github.com/kt1928/node-system",
             icon: GitBranch,
             accent: NORD.nord9,
-            category: "DevOps"
           },
           {
             title: "building-monitor",
-            description: "NYC BIS/311 monitoring with Discord alerts",
+            description: "NYC BIS/311 monitoring w/ Discord alerts",
             status: "stable",
             href: "https://github.com/kt1928/building-monitor",
             icon: Shield,
             accent: NORD.nord13,
-            category: "Monitoring"
+          },
+          {
+            title: "inventory-management",
+            description: "Asset tracking trial for property operations",
+            status: "idea",
+            href: "https://github.com/kt1928/inventory-management",
+            icon: FolderGit2,
+            accent: NORD.nord15,
           },
         ],
       },
@@ -380,119 +273,96 @@ export default function DashboardPage() {
     [],
   )
 
-  if (!mounted) {
-    return null
-  }
-
   return (
     <div className="min-h-dvh bg-nord-0">
-      {/* Floating Navigation */}
-      <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50">
-        <nav className="glass rounded-2xl px-6 py-3">
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
-              <div
-                className="rounded-lg p-1.5"
-                style={{
-                  background: `${NORD.nord8}20`,
-                  border: `1px solid ${NORD.nord8}30`,
-                }}
-              >
-                <Server size={16} style={{ color: NORD.nord8 }} />
+      <main className="px-5 py-8 sm:px-8 sm:py-10">
+        <div className="mx-auto max-w-6xl">
+          {/* Header */}
+          <header className="glass animate-in rounded-3xl px-6 py-6 sm:px-8">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <div className="text-xs font-medium tracking-wide text-nord-5">KAPPY</div>
+                <h1 className="mt-1 text-2xl font-semibold tracking-tight text-nord-6 sm:text-3xl">Homelab + Projects</h1>
+                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-nord-5 text-balance">
+                  Forest Hills, Queens • Real estate ops & investing (QBSON LLC) • Homelab/self-hosting • Business automation • 3D printing •
+                  Specialty coffee.
+                </p>
               </div>
-              <span className="text-sm font-medium text-nord-6">Ridge Server</span>
-            </div>
-            
-            <div className="h-4 w-px bg-nord-3" />
-            
-            <div className="flex items-center gap-4">
-              <a
-                href="/"
-                className="flex items-center gap-2 text-sm font-medium text-nord-5 transition-colors hover:text-nord-6"
-              >
-                <Home size={14} />
-                Home
-              </a>
-              <a
-                href="/map"
-                className="flex items-center gap-2 text-sm font-medium text-nord-5 transition-colors hover:text-nord-6"
-              >
-                <Coffee size={14} />
-                Map
-              </a>
-              <a
-                href="https://github.com/kt1928"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm font-medium text-nord-5 transition-colors hover:text-nord-6"
-              >
-                <FolderGit2 size={14} />
-                GitHub
-              </a>
-            </div>
-          </div>
-        </nav>
-      </div>
 
-      <main className="px-6 py-24 sm:px-8">
-        <div className="mx-auto max-w-7xl space-y-12">
-          {/* Hero Section */}
-          <HeroSection />
+              <div className="flex items-center gap-3">
+                <a
+                  href="/"
+                  className="rounded-xl px-4 py-2 text-sm font-medium text-nord-6/90 transition-colors hover:bg-nord-3/20 focus-visible:focus-ring"
+                >
+                  Home
+                </a>
+                <a
+                  href="/map"
+                  className="rounded-xl px-4 py-2 text-sm font-medium text-nord-6/90 transition-colors hover:bg-nord-3/20 focus-visible:focus-ring"
+                >
+                  Map
+                </a>
+              </div>
+            </div>
+          </header>
 
-          {/* Service Groups */}
-          {groups.map((group, groupIndex) => (
-            <section key={group.title} className="space-y-6">
-              <div className="flex items-end justify-between">
+          {/* About */}
+          <section className="mt-8">
+            <div className="glass rounded-3xl p-6 sm:p-8">
+              <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                 <div>
-                  <div className="text-xs font-medium tracking-wide text-nord-5 uppercase">
-                    {group.subtitle}
-                  </div>
-                  <h2 className="mt-1 text-2xl font-bold tracking-tight text-nord-6 flex items-center gap-3">
-                    {group.title}
-                    <div
-                      className="grid h-8 w-8 place-items-center rounded-xl"
-                      style={{ 
-                        background: `${group.accent}18`, 
-                        border: `1px solid ${group.accent}33` 
-                      }}
+                  <div className="text-xs font-medium tracking-wide text-nord-5">ABOUT</div>
+                  <h2 className="mt-1 text-xl font-semibold tracking-tight text-nord-6">Hi, I’m Kappy.</h2>
+                  <p className="mt-2 max-w-3xl text-sm leading-relaxed text-nord-5 text-pretty">
+                    I run day-to-day real estate operations and investments across 18 rental units in Brooklyn & Queens under QBSON LLC. Outside
+                    of that, I build a self-hosted stack (media, storage, automation) and ship small tools that make life easier.
+                  </p>
+                </div>
+                {!isMobile ? (
+                  <div className="rounded-2xl px-4 py-3" style={{ background: `${NORD.nord1}66`, border: `1px solid ${NORD.nord3}55` }}>
+                    <div className="text-xs font-medium tracking-wide text-nord-5">GITHUB</div>
+                    <a
+                      href="https://github.com/kt1928"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-1 inline-flex items-center gap-2 text-sm font-semibold text-nord-6/90 hover:text-nord-6"
                     >
-                      <group.icon size={16} style={{ color: group.accent }} />
-                    </div>
-                  </h2>
-                </div>
-                
-                <div className="text-sm text-nord-5">
-                  {group.items.length} {group.items.length === 1 ? 'service' : 'services'}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {group.items.map((item, itemIndex) => (
-                  <div
-                    key={`${group.title}-${item.title}`}
-                    className="animate-in"
-                    style={{
-                      animationDelay: `${(groupIndex * 100) + (itemIndex * 50)}ms`,
-                      animationFillMode: 'both'
-                    }}
-                  >
-                    <ServiceCard item={{ ...item, accent: item.accent || group.accent }} />
+                      @kt1928 <ArrowUpRight size={16} />
+                    </a>
                   </div>
-                ))}
+                ) : null}
               </div>
-            </section>
-          ))}
-
-          {/* Footer */}
-          <footer className="text-center py-8">
-            <div className="glass rounded-2xl px-6 py-4 inline-block">
-              <p className="text-sm text-nord-5">
-                Built with <span style={{ color: NORD.nord11 }}>♥</span> using Next.js 15, Tailwind CSS & Nord Theme
-              </p>
-              <p className="text-xs text-nord-4 mt-1">
-                Forest Hills, Queens • NYC • {new Date().getFullYear()}
-              </p>
             </div>
+          </section>
+
+          {/* Groups */}
+          <section className="mt-8 space-y-8">
+            {groups.map((group) => (
+              <div key={group.title}>
+                <div className="mb-4 flex items-end justify-between">
+                  <div>
+                    <div className="text-xs font-medium tracking-wide text-nord-5">{group.subtitle}</div>
+                    <h2 className="mt-1 text-lg font-semibold tracking-tight text-nord-6">{group.title}</h2>
+                  </div>
+                  <div
+                    className="grid h-10 w-10 place-items-center rounded-2xl"
+                    style={{ background: `${group.accent}18`, border: `1px solid ${group.accent}33` }}
+                  >
+                    <group.icon size={18} style={{ color: group.accent }} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {group.items.map((item) => (
+                    <GlassCard key={`${group.title}-${item.title}`} item={{ ...item, accent: item.accent || group.accent }} />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </section>
+
+          <footer className="mt-10 pb-6 text-center text-xs text-nord-5">
+            Built with Next.js • Nord theme • glass UI
           </footer>
         </div>
       </main>

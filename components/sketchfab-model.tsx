@@ -36,31 +36,55 @@ interface SketchfabModelProps {
 
 export default function SketchfabModel({ modelId }: SketchfabModelProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const [error, setError] = useState<string | null>(null)
+  const [debugInfo, setDebugInfo] = useState<string[]>([])
 
-  const embedUrl = `https://sketchfab.com/models/${modelId}/embed?autostart=1&autospin=0.25&preload=1&dnt=1&ui_hint=0&ui_infos=0&ui_stop=0&ui_inspector=0&ui_help=0&ui_settings=0&ui_fullscreen=0&ui_annotations=0&ui_watermark=0&ui_watermark_link=0`
+  const addDebugInfo = (info: string) => {
+    console.log(info)
+    setDebugInfo((prev) => [...prev, `${new Date().toLocaleTimeString()}: ${info}`])
+  }
 
   useEffect(() => {
+    addDebugInfo("Starting Sketchfab initialization with correct model ID...")
+
     // Clear any previous state
     setError(null)
 
     const iframe = iframeRef.current
     if (!iframe) {
+      addDebugInfo("ERROR: No iframe found")
       setError("Failed to initialize viewer")
       return
     }
 
     // Set a timeout to prevent infinite loading
     const loadingTimeout = setTimeout(() => {
+      addDebugInfo("TIMEOUT: Model took too long to load")
       setError("Model loading timed out. Please try again.")
-    }, 20000)
+    }, 15000) // 15 seconds timeout
+
+    // Use the exact embed URL from your updated code with autospin and autostart
+    const embedUrl = `https://sketchfab.com/models/${modelId}/embed?autospin=1&autostart=1&ui_hint=0`
+
+    addDebugInfo(`Setting iframe src to: ${embedUrl}`)
+    iframe.src = embedUrl
 
     // Listen for iframe load events
     const handleIframeLoad = () => {
+      addDebugInfo("Iframe loaded successfully")
       clearTimeout(loadingTimeout)
+
+      // Give it a moment to fully initialize the 3D viewer
+      setTimeout(() => {
+        addDebugInfo("Model should be ready now")
+        // Notify parent that model is ready
+        window.parent.postMessage({ action: "modelReady" }, "*")
+      }, 1000) // Reduced timing since main loading covers it
     }
 
     const handleIframeError = () => {
+      addDebugInfo("ERROR: Iframe failed to load")
       clearTimeout(loadingTimeout)
       setError("Failed to load the 3D model. Please check your internet connection.")
     }
@@ -73,10 +97,10 @@ export default function SketchfabModel({ modelId }: SketchfabModelProps) {
       iframe.removeEventListener("load", handleIframeLoad)
       iframe.removeEventListener("error", handleIframeError)
     }
-  }, [])
+  }, [modelId])
 
   return (
-    <div className="relative w-full h-full" style={{ background: NORD_COLORS.polarNight.nord0 }}>
+    <div ref={containerRef} className="relative w-full h-full" style={{ background: NORD_COLORS.polarNight.nord0 }}>
       {/* Nord-themed gradient background */}
       <div
         className="absolute inset-0 z-0 opacity-50"
@@ -139,33 +163,33 @@ export default function SketchfabModel({ modelId }: SketchfabModelProps) {
         </div>
       )}
 
-      {/* Sketchfab embed wrapper - clip bottom to hide attribution bar */}
+      {/* Sketchfab embed wrapper - clean version without attribution */}
       <div
-        className="absolute inset-0 z-10 overflow-hidden"
+        className="absolute inset-0 z-10"
         style={{
           background: NORD_COLORS.polarNight.nord0,
           visibility: error ? "hidden" : "visible",
         }}
       >
-        <iframe
-          ref={iframeRef}
-          title="RS LOGO v1"
-          src={embedUrl}
-          frameBorder="0"
-          allowFullScreen
-          allow="autoplay; fullscreen; xr-spatial-tracking"
-          loading="eager"
-          fetchPriority="high"
-          referrerPolicy="no-referrer-when-downgrade"
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            border: "none",
-            background: NORD_COLORS.polarNight.nord0,
-          }}
-        />
+        <div className="sketchfab-embed-wrapper w-full h-full">
+          <iframe
+            ref={iframeRef}
+            title="RS LOGO v1"
+            frameBorder="0"
+            allowFullScreen
+            mozallowfullscreen="true"
+            webkitallowfullscreen="true"
+            allow="autoplay; fullscreen; xr-spatial-tracking"
+            xr-spatial-tracking="true"
+            execution-while-out-of-viewport="true"
+            execution-while-not-rendered="true"
+            web-share="true"
+            className="w-full h-full border-0"
+            style={{
+              background: NORD_COLORS.polarNight.nord0,
+            }}
+          />
+        </div>
       </div>
     </div>
   )
