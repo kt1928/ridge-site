@@ -36,8 +36,6 @@ const NORD_COLORS = {
 
 export default function Home() {
   const [useSketchfab, setUseSketchfab] = useState(true)
-  const [isLoading, setIsLoading] = useState(true)
-  const [progress, setProgress] = useState(0)
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -47,22 +45,6 @@ export default function Home() {
     return () => {
       delete document.body.dataset.scrollExtended
     }
-  }, [])
-
-  useEffect(() => {
-    const progressInterval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(progressInterval)
-          setTimeout(() => setIsLoading(false), 500)
-          return 100
-        }
-        const increment = Math.random() * 15 + 5
-        return Math.min(prev + increment, 100)
-      })
-    }, 200)
-
-    return () => clearInterval(progressInterval)
   }, [])
 
   useEffect(() => {
@@ -80,57 +62,6 @@ export default function Home() {
 
   return (
     <main className="relative h-dvh w-full overflow-hidden" style={{ background: NORD_COLORS.polarNight.nord0 }}>
-      {/* Loading Screen */}
-      {isLoading && (
-        <div
-          className="absolute inset-0 z-50 flex flex-col items-center justify-center"
-          style={{
-            background: `linear-gradient(135deg, ${NORD_COLORS.polarNight.nord0} 0%, ${NORD_COLORS.polarNight.nord1} 100%)`,
-          }}
-        >
-          <div className="mb-8 text-center">
-            <div className="mb-4 flex items-center justify-center">
-              <div
-                className="rounded-2xl p-4"
-                style={{
-                  background: `${NORD_COLORS.frost.nord8}15`,
-                  border: `1px solid ${NORD_COLORS.frost.nord8}30`,
-                }}
-              >
-                <Server size={32} style={{ color: NORD_COLORS.frost.nord8 }} />
-              </div>
-            </div>
-            <h1 className="text-2xl font-semibold tracking-tight" style={{ color: NORD_COLORS.snowStorm.nord6 }}>
-              Ridge Server
-            </h1>
-            <p className="mt-2 text-sm" style={{ color: NORD_COLORS.snowStorm.nord5 }}>
-              Initializing homelab dashboard...
-            </p>
-          </div>
-          
-          <div className="w-80 max-w-md mx-auto">
-            <div 
-              className="h-2 rounded-full overflow-hidden"
-              style={{ background: NORD_COLORS.polarNight.nord2 }}
-            >
-              <div
-                className="h-full transition-all duration-300 ease-out rounded-full"
-                style={{
-                  width: `${progress}%`,
-                  background: `linear-gradient(90deg, ${NORD_COLORS.frost.nord8}, ${NORD_COLORS.frost.nord7})`,
-                  boxShadow: `0 0 20px ${NORD_COLORS.frost.nord8}40`,
-                }}
-              />
-            </div>
-            <div className="mt-3 text-center">
-              <span className="text-xs font-medium" style={{ color: NORD_COLORS.snowStorm.nord4 }}>
-                {Math.round(progress)}%
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Floating Navigation */}
       <div className="absolute top-8 left-1/2 -translate-x-1/2 z-20">
         <nav className="glass rounded-2xl px-6 py-3">
@@ -149,9 +80,9 @@ export default function Home() {
                 Ridge Server
               </span>
             </div>
-            
+
             <div className="h-4 w-px" style={{ background: NORD_COLORS.polarNight.nord3 }} />
-            
+
             <div className="flex items-center gap-4">
               <a
                 href="/dashboard"
@@ -178,28 +109,27 @@ export default function Home() {
       <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-8">
         <div className="max-w-4xl mx-auto">
           <div className="mb-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6"
-                 style={{
-                   background: `${NORD_COLORS.aurora.nord14}15`,
-                   border: `1px solid ${NORD_COLORS.aurora.nord14}30`,
-                 }}>
+            <div
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6"
+              style={{
+                background: `${NORD_COLORS.aurora.nord14}15`,
+                border: `1px solid ${NORD_COLORS.aurora.nord14}30`,
+              }}
+            >
               <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: NORD_COLORS.aurora.nord14 }} />
               <span className="text-xs font-medium" style={{ color: NORD_COLORS.aurora.nord14 }}>
                 Forest Hills, Queens • NYC
               </span>
             </div>
-            
-            <h1 className="text-6xl md:text-7xl font-bold tracking-tight mb-4"
-                style={{ color: NORD_COLORS.snowStorm.nord6 }}>
+
+            <h1 className="text-6xl md:text-7xl font-bold tracking-tight mb-4" style={{ color: NORD_COLORS.snowStorm.nord6 }}>
               Welcome to
               <br />
               <span style={{ color: NORD_COLORS.frost.nord8 }}>Ridge Server</span>
             </h1>
-            
-            <p className="text-xl md:text-2xl leading-relaxed max-w-2xl mx-auto"
-               style={{ color: NORD_COLORS.snowStorm.nord5 }}>
-              Personal homelab & portfolio showcasing self-hosted services, 
-              real estate operations, and passion projects.
+
+            <p className="text-xl md:text-2xl leading-relaxed max-w-2xl mx-auto" style={{ color: NORD_COLORS.snowStorm.nord5 }}>
+              Personal homelab & portfolio showcasing self-hosted services, real estate operations, and passion projects.
             </p>
           </div>
 
@@ -216,7 +146,7 @@ export default function Home() {
               <span className="text-lg font-semibold">Explore Dashboard</span>
               <ArrowRight size={20} className="transition-transform group-hover:translate-x-1" />
             </a>
-            
+
             <a
               href="https://github.com/kt1928"
               target="_blank"
@@ -236,18 +166,30 @@ export default function Home() {
         <div className="glass rounded-2xl p-4">
           <div className="flex items-center gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold" style={{ color: NORD_COLORS.frost.nord8 }}>18</div>
-              <div className="text-xs" style={{ color: NORD_COLORS.snowStorm.nord5 }}>Rental Units</div>
+              <div className="text-2xl font-bold" style={{ color: NORD_COLORS.frost.nord8 }}>
+                18
+              </div>
+              <div className="text-xs" style={{ color: NORD_COLORS.snowStorm.nord5 }}>
+                Rental Units
+              </div>
             </div>
             <div className="h-8 w-px" style={{ background: NORD_COLORS.polarNight.nord3 }} />
             <div className="text-center">
-              <div className="text-2xl font-bold" style={{ color: NORD_COLORS.aurora.nord14 }}>15+</div>
-              <div className="text-xs" style={{ color: NORD_COLORS.snowStorm.nord5 }}>Services</div>
+              <div className="text-2xl font-bold" style={{ color: NORD_COLORS.aurora.nord14 }}>
+                15+
+              </div>
+              <div className="text-xs" style={{ color: NORD_COLORS.snowStorm.nord5 }}>
+                Services
+              </div>
             </div>
             <div className="h-8 w-px" style={{ background: NORD_COLORS.polarNight.nord3 }} />
             <div className="text-center">
-              <div className="text-2xl font-bold" style={{ color: NORD_COLORS.aurora.nord13 }}>4</div>
-              <div className="text-xs" style={{ color: NORD_COLORS.snowStorm.nord5 }}>Projects</div>
+              <div className="text-2xl font-bold" style={{ color: NORD_COLORS.aurora.nord13 }}>
+                4
+              </div>
+              <div className="text-xs" style={{ color: NORD_COLORS.snowStorm.nord5 }}>
+                Projects
+              </div>
             </div>
           </div>
         </div>
@@ -269,18 +211,18 @@ export default function Home() {
       </div>
 
       {/* 3D Background */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 w-full h-full">
         {useSketchfab ? (
           <SketchfabModel modelId="37c146c94b1e4d28b34d2d428247e5c0" />
         ) : (
-          <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
+          <Canvas camera={{ position: [0, 0, 5], fov: 50 }} style={{ width: "100%", height: "100%" }}>
             <SimpleScene />
           </Canvas>
         )}
       </div>
 
       {/* Gradient Overlays */}
-      <div 
+      <div
         className="absolute inset-0 z-5 pointer-events-none"
         style={{
           background: `radial-gradient(circle at 50% 50%, transparent 0%, ${NORD_COLORS.polarNight.nord0}20 100%)`,
