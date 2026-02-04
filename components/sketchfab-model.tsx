@@ -65,7 +65,7 @@ export default function SketchfabModel({ modelId }: SketchfabModelProps) {
     }, 15000) // 15 seconds timeout
 
     // Use the exact embed URL from your updated code with autospin and autostart
-    const embedUrl = `https://sketchfab.com/models/${modelId}/embed?autospin=1&autostart=1&ui_hint=0`
+    const embedUrl = `https://sketchfab.com/models/${modelId}/embed?autospin=1&autostart=1&ui_hint=0&ui_controls=0&ui_infos=0&ui_stop=0&ui_inspector=0&ui_watermark_link=0&ui_watermark=0&ui_help=0&ui_settings=0&ui_fullscreen=0&ui_annotations=0&transparent=1`
 
     addDebugInfo(`Setting iframe src to: ${embedUrl}`)
     iframe.src = embedUrl
@@ -163,15 +163,15 @@ export default function SketchfabModel({ modelId }: SketchfabModelProps) {
         </div>
       )}
 
-      {/* Sketchfab embed wrapper - clean version without attribution */}
+      {/* Sketchfab embed wrapper - clip bottom to hide attribution bar */}
       <div
-        className="absolute inset-0 z-10"
+        className="absolute inset-0 z-10 overflow-hidden"
         style={{
           background: NORD_COLORS.polarNight.nord0,
           visibility: error ? "hidden" : "visible",
         }}
       >
-        <div className="sketchfab-embed-wrapper w-full h-full">
+        <div className="sketchfab-embed-wrapper w-full" style={{ height: "calc(100% + 60px)" }}>
           <iframe
             ref={iframeRef}
             title="RS LOGO v1"
