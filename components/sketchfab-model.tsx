@@ -65,7 +65,7 @@ export default function SketchfabModel({ modelId }: SketchfabModelProps) {
     }, 15000) // 15 seconds timeout
 
     // Use the exact embed URL from your updated code with autospin and autostart
-    const embedUrl = `https://sketchfab.com/models/${modelId}/embed?autospin=1&autostart=1&ui_hint=0&ui_controls=0&ui_infos=0&ui_stop=0&ui_inspector=0&ui_watermark_link=0&ui_watermark=0&ui_help=0&ui_settings=0&ui_fullscreen=0&ui_annotations=0&transparent=1`
+    const embedUrl = `https://sketchfab.com/models/${modelId}/embed?autospin=1&autostart=1&ui_hint=0&ui_infos=0&ui_stop=0&ui_inspector=0&ui_help=0&ui_settings=0&ui_fullscreen=0&ui_annotations=0`
 
     addDebugInfo(`Setting iframe src to: ${embedUrl}`)
     iframe.src = embedUrl
@@ -171,25 +171,28 @@ export default function SketchfabModel({ modelId }: SketchfabModelProps) {
           visibility: error ? "hidden" : "visible",
         }}
       >
-        <div className="sketchfab-embed-wrapper w-full" style={{ height: "calc(100% + 60px)" }}>
-          <iframe
-            ref={iframeRef}
-            title="RS LOGO v1"
-            frameBorder="0"
-            allowFullScreen
-            mozallowfullscreen="true"
-            webkitallowfullscreen="true"
-            allow="autoplay; fullscreen; xr-spatial-tracking"
-            xr-spatial-tracking="true"
-            execution-while-out-of-viewport="true"
-            execution-while-not-rendered="true"
-            web-share="true"
-            className="w-full h-full border-0"
-            style={{
-              background: NORD_COLORS.polarNight.nord0,
-            }}
-          />
-        </div>
+        <iframe
+          ref={iframeRef}
+          title="RS LOGO v1"
+          frameBorder="0"
+          allowFullScreen
+          mozallowfullscreen="true"
+          webkitallowfullscreen="true"
+          allow="autoplay; fullscreen; xr-spatial-tracking"
+          xr-spatial-tracking="true"
+          execution-while-out-of-viewport="true"
+          execution-while-not-rendered="true"
+          web-share="true"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "calc(100% + 60px)",
+            border: "none",
+            background: NORD_COLORS.polarNight.nord0,
+          }}
+        />
       </div>
     </div>
   )

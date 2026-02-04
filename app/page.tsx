@@ -79,7 +79,7 @@ export default function Home() {
   }
 
   return (
-    <main className="relative h-dvh w-full overflow-hidden">
+    <main className="relative h-dvh w-full overflow-hidden" style={{ background: NORD_COLORS.polarNight.nord0 }}>
       {/* Loading Screen */}
       {isLoading && (
         <div
