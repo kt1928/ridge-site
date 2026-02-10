@@ -94,7 +94,7 @@ importers:
         version: 1.1.6(@types/react-dom@19.1.6(@types/react@19.1.6))(@types/react@19.1.6)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-three/drei':
         specifier: latest
-        version: 10.1.2(c8c6b980eb9c994b9344b0e9d11f8614)
+        version: 10.1.2(tswftp43vjguc2g4ikg2nzu5uq)
       '@react-three/fiber':
         specifier: latest
         version: 9.1.2(@types/react@19.1.6)(expo-asset@11.1.5(expo@53.0.11(@babel/core@7.27.4)(react-native@0.79.3(@babel/core@7.27.4)(@types/react@19.1.6)(react@19.1.0))(react@19.1.0))(react-native@0.79.3(@babel/core@7.27.4)(@types/react@19.1.6)(react@19.1.0))(react@19.1.0))(expo-file-system@18.1.10(expo@53.0.11(@babel/core@7.27.4)(react-native@0.79.3(@babel/core@7.27.4)(@types/react@19.1.6)(react@19.1.0))(react@19.1.0))(react-native@0.79.3(@babel/core@7.27.4)(@types/react@19.1.6)(react@19.1.0)))(expo-gl@15.1.6(expo@53.0.11(@babel/core@7.27.4)(react-native@0.79.3(@babel/core@7.27.4)(@types/react@19.1.6)(react@19.1.0))(react@19.1.0))(react-native@0.79.3(@babel/core@7.27.4)(@types/react@19.1.6)(react@19.1.0))(react@19.1.0))(expo@53.0.11(@babel/core@7.27.4)(react-native@0.79.3(@babel/core@7.27.4)(@types/react@19.1.6)(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react-native@0.79.3(@babel/core@7.27.4)(@types/react@19.1.6)(react@19.1.0))(react@19.1.0)(three@0.177.0)
@@ -207,6 +207,9 @@ importers:
       '@types/react-dom':
         specifier: ^19
         version: 19.1.6(@types/react@19.1.6)
+      '@types/three':
+        specifier: ^0.177.0
+        version: 0.177.0
       postcss:
         specifier: ^8.5
         version: 8.5.4
@@ -6283,7 +6286,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.1.6
 
-  '@react-three/drei@10.1.2(c8c6b980eb9c994b9344b0e9d11f8614)':
+  '@react-three/drei@10.1.2(tswftp43vjguc2g4ikg2nzu5uq)':
     dependencies:
       '@babel/runtime': 7.27.6
       '@mediapipe/tasks-vision': 0.10.17

@@ -177,8 +177,9 @@ export default function SketchfabModel({ modelId }: SketchfabModelProps) {
             title="RS LOGO v1"
             frameBorder="0"
             allowFullScreen
-            mozallowfullscreen="true"
-            webkitallowfullscreen="true"
+            // non-standard attrs removed for TS compatibility
+            // mozallowfullscreen="true"
+            // webkitallowfullscreen="true"
             allow="autoplay; fullscreen; xr-spatial-tracking"
             xr-spatial-tracking="true"
             execution-while-out-of-viewport="true"

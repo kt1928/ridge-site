@@ -28,9 +28,12 @@ function RSLogo() {
 
     const loadModel = async () => {
       try {
-        const gltf = await useGLTF.preload(MODEL_URL)
+        // preload() returns void; use it only to warm the cache
+        useGLTF.preload(MODEL_URL)
         if (isMounted) {
-          setScene(gltf.scene)
+          // If you want to actually render a remote GLB, use useGLTF(MODEL_URL) in render.
+          // For now we rely on the fallback logo.
+          setScene(null)
         }
       } catch (err: any) {
         console.warn("Model failed to load, using fallback")
