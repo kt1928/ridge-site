@@ -1,12 +1,9 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Canvas } from "@react-three/fiber"
 import { ArrowRight } from "lucide-react"
-import SketchfabModel from "@/components/sketchfab-model"
-import SimpleScene from "@/components/simple-scene"
+import ASCIIAnimation from "@/components/ascii-animation"
 
-// Nord color palette (kept to preserve branding)
 const NORD_COLORS = {
   polarNight: {
     nord0: "#2E3440",
@@ -35,17 +32,8 @@ const NORD_COLORS = {
 }
 
 export default function Home() {
-  const [useSketchfab, setUseSketchfab] = useState(true)
   const [isLoading, setIsLoading] = useState(true)
   const [progress, setProgress] = useState(0)
-
-  useEffect(() => {
-    // Extend scroll only on landing page (used by ScrollTrigger in 3D model)
-    document.body.dataset.scrollExtended = "true"
-    return () => {
-      delete document.body.dataset.scrollExtended
-    }
-  }, [])
 
   useEffect(() => {
     const progressInterval = setInterval(() => {
@@ -63,17 +51,8 @@ export default function Home() {
     return () => clearInterval(progressInterval)
   }, [])
 
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (event.data?.action === "switchToLocal") setUseSketchfab(false)
-    }
-
-    window.addEventListener("message", handleMessage)
-    return () => window.removeEventListener("message", handleMessage)
-  }, [])
-
   return (
-    <main className="relative h-dvh w-full overflow-hidden">
+    <main className="relative h-dvh w-full overflow-hidden" style={{ background: NORD_COLORS.polarNight.nord0 }}>
       {/* Loading */}
       {isLoading && (
         <div
@@ -94,7 +73,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* Header - Original style */}
+      {/* Header */}
       <div
         className="absolute top-0 left-0 right-0 z-20 flex justify-between items-center px-8 py-6"
         style={{
@@ -102,14 +81,12 @@ export default function Home() {
           backdropFilter: "blur(8px)",
         }}
       >
-        {/* Welcome text on left */}
         <div>
           <h1 className="text-4xl font-bold" style={{ color: NORD_COLORS.snowStorm.nord6 }}>
             Welcome
           </h1>
         </div>
 
-        {/* Enter button on right */}
         <div>
           <a
             href="/dashboard"
@@ -126,30 +103,32 @@ export default function Home() {
         </div>
       </div>
 
+      {/* ASCII Animation */}
+      <div className="h-full w-full flex items-center justify-center">
+        <ASCIIAnimation
+          frameFolder="animations/rs-logo"
+          quality="high"
+          fps={15}
+          frameCount={90}
+          className="w-full h-full"
+          gradient={`linear-gradient(180deg, ${NORD_COLORS.frost.nord8}, ${NORD_COLORS.frost.nord10}, ${NORD_COLORS.aurora.nord15})`}
+          ariaLabel="RS Logo ASCII animation"
+        />
+      </div>
+
       {/* Status */}
       <div className="absolute bottom-8 left-8 z-10">
         <div className="p-2 rounded-lg" style={{ background: NORD_COLORS.polarNight.nord1 }}>
           <div className="flex items-center gap-2">
             <div
               className="w-2 h-2 rounded-full"
-              style={{ background: useSketchfab ? NORD_COLORS.aurora.nord14 : NORD_COLORS.frost.nord10 }}
+              style={{ background: NORD_COLORS.aurora.nord14 }}
             />
             <span className="text-sm" style={{ color: NORD_COLORS.snowStorm.nord6 }}>
-              {useSketchfab ? "Sketchfab Model (RS Logo)" : "Local Model"}
+              ASCII Art (RS Logo)
             </span>
           </div>
         </div>
-      </div>
-
-      {/* 3D */}
-      <div className="h-full w-full">
-        {useSketchfab ? (
-          <SketchfabModel modelId="37c146c94b1e4d28b34d2d428247e5c0" />
-        ) : (
-          <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
-            <SimpleScene />
-          </Canvas>
-        )}
       </div>
     </main>
   )
